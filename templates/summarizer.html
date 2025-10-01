@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>AI Note Summarizer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f3e5f5;
+            color: #4a148c;
+            padding: 2rem;
+            max-width: 700px;
+            margin: auto;
+        }
+        textarea, button {
+            width: 100%;
+            font-size: 1rem;
+            padding: 1rem;
+            margin-top: 1rem;
+            border-radius: 1rem;
+            border: 1px solid #ce93d8;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+        }
+        button {
+            background-color: #ce93d8;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        button:hover {
+            background-color: #ba68c8;
+        }
+        .result {
+            background: white;
+            padding: 1rem;
+            margin-top: 2rem;
+            border-radius: 1rem;
+            box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <h1>🧠 AI Note Summarizer</h1>
+    <form method="POST">
+        <label for="note">Paste your notes:</label>
+        <textarea name="note" id="note" rows="10" required></textarea>
+        <button type="submit">✨ Summarize</button>
+    </form>
+
+    {% if summary %}
+    <div class="result">
+        <h3>🔍 Summary:</h3>
+        <p>{{ summary }}</p>
+    </div>
+    {% endif %}
+</body>
+</html>

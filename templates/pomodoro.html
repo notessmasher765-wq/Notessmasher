@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pomodoro Timer 🍅</title>
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Quicksand', sans-serif;
+      background-color: #f3e5f5;
+      color: #6a1b9a;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    h1 {
+      font-size: clamp(1.5rem, 5vw, 2.5rem);
+      margin-bottom: 10px;
+    }
+
+    #timer {
+      font-size: 3rem;
+      width: clamp(120px, 40vw, 180px);
+      height: clamp(120px, 40vw, 180px);
+      position: relative;
+      width: 180px;
+      border-radius: 50%;
+      background: conic-gradient(#6a1b9a var(--progress, 0%), #e1bee7 0%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn {
+      background-color: #ad13c9;
+      color: white;
+       padding: clamp(10px, 2vw, 12px) clamp(20px, 5vw, 24px);
+  font-size: clamp(0.9rem, 2vw, 1.1rem);
+      border: none;
+      margin: 10px;
+      border-radius: 30px;
+      cursor: pointer;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+    }
+
+    .btn:hover {
+      background-color: #ad13c9;
+      transform: scale(1.05);
+    }
+
+    .motivation {
+      margin-top: 15px;
+      font-size: 1.2rem;
+      color: #ad13c9;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    /* AI Button Styles */
+    .ai-fab {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #6a1b9a;
+      color: white;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 24px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      cursor: pointer;
+      z-index: 9999;
+    }
+
+    .summarizer-modal {
+      display: none;
+      position: fixed;
+      bottom: 100px;
+      right: 20px;
+      width: 300px;
+      background: white;
+      border: 2px solid #ce93d8;
+      border-radius: 15px;
+      padding: 15px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      z-index: 9999;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .summarizer-modal textarea {
+      width: 100%;
+      height: 100px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      padding: 10px;
+      resize: vertical;
+      font-size: 14px;
+    }
+
+    .summarizer-modal select,
+    .summarizer-modal button {
+      margin-top: 10px;
+      width: 100%;
+      padding: 8px;
+      border-radius: 8px;
+      border: none;
+      font-size: 14px;
+    }
+
+    .summarizer-modal button {
+      background-color: #6a1b9a;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .summarized-output {
+      margin-top: 10px;
+      font-size: 14px;
+      background: #f3e5f5;
+      border-radius: 10px;
+      padding: 10px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    iframe {
+  width: 100%;
+  height: 70vh; /* relative to screen height */
+}
+  </style>
+</head>
+
+<body>
+  {% extends "base.html" %}
+
+  {% block title %}Pomodoro Timer | StudySpark{% endblock %}
+
+  {% block content %}
+  <h1>Pomodoro Timer 💻⏳</h1>
+  <div id="timer">25:00</div>
+
+  <div>
+    <button class="btn" onclick="startTimer()">Start 🍀</button>
+    <button class="btn" onclick="pauseTimer()">Pause ⏸️</button>
+    <button class="btn" onclick="resetTimer()">Reset 🔄</button>
+  </div>
+
+  <div class="motivation" id="motivation">You’ve got this! 💪💜</div>
+
+  <audio id="bg-music" loop>
+    <source
+      src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_9db10d2283.mp3?filename=soft-piano-ambient-10957.mp3"
+      type="audio/mpeg">
+  </audio>
+
+  <!-- Floating AI Button -->
+  <div class="ai-fab" onclick="toggleSummarizer()">⚡</div>
+
+  <!-- AI Modal -->
+  <div class="summarizer-modal" id="summarizerModal">
+    <textarea id="inputText" placeholder="Paste your notes here..."></textarea>
+    <select id="summaryLength">
+      <option value="short">Short</option>
+      <option value="medium">Medium</option>
+      <option value="long">Long</option>
+    </select>
+    <button onclick="summarizeText()">Summarize</button>
+    <div class="summarized-output" id="summaryOutput"></div>
+    <!-- Embed Hugging Face AI Tool -->
+    <div style="width: 90%; margin-top: 40px;">
+      <h2 style="text-align: center; font-family: 'Poppins', sans-serif; color: #6a1b9a;">Try My AI Tool ⚙️</h2>
+      <iframe src="https://huggingface.co/spaces/purplejk7/My_empire" width="100%" height="600px"
+        style="border: none; border-radius: 15px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);"></iframe>
+    </div>
+
+  </div>
+
+  <script>
+    let timer;
+    let timeLeft = 25 * 60;
+    let isRunning = false;
+    const motivationLines = [
+      "You're doing amazing! ✨",
+      "One step closer to your dream! 🚀",
+      "Stay focused, superstar! 💖",
+      "Breathe in... breathe out... you're strong! 🌸",
+      "Pomopower! 🍅💜 Keep going!"
+    ];
+
+    function updateTimerDisplay() {
+      const minutes = Math.floor(timeLeft / 60);
+      const seconds = timeLeft % 60;
+      document.getElementById("timer").textContent = `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+      document.getElementById("timer").style.setProperty('--progress', `${100 - (timeLeft / (25 * 60)) * 100}%`);
+    }
+
+    function startTimer() {
+      if (!isRunning) {
+        isRunning = true;
+        timer = setInterval(() => {
+          if (timeLeft > 0) {
+            timeLeft--;
+            updateTimerDisplay();
+            if (timeLeft % 60 === 0) updateMotivation();
+          } else {
+            clearInterval(timer);
+            isRunning = false;
+            showBreakPopup();
+          }
+        }, 1000);
+      }
+    }
+
+    function pauseTimer() {
+      clearInterval(timer);
+      isRunning = false;
+    }
+
+    function resetTimer() {
+      pauseTimer();
+      timeLeft = 25 * 60;
+      updateTimerDisplay();
+      document.getElementById("motivation").textContent = "Back to the grind! 💫";
+    }
+
+    function updateMotivation() {
+      const line = motivationLines[Math.floor(Math.random() * motivationLines.length)];
+      document.getElementById("motivation").textContent = line;
+    }
+
+    function showBreakPopup() {
+      setTimeout(() => {
+        alert("Time's up! Take a 5-minute break 🧘‍♀️💤");
+        document.getElementById("motivation").textContent = "Break Time! You earned it! 🌈✨";
+      }, 500);
+    }
+
+    function toggleSummarizer() {
+      const modal = document.getElementById("summarizerModal");
+      modal.style.display = modal.style.display === "block" ? "none" : "block";
+    }
+
+    async function summarizeText() {
+      const text = document.getElementById("inputText").value;
+      const length = document.getElementById("summaryLength").value;
+      const output = document.getElementById("summaryOutput");
+      output.innerHTML = "⏳ Summarizing...";
+
+      const response = await fetch("/summarize", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ text: text, length: length })
+      });
+
+      const data = await response.json();
+      output.innerHTML = data.summary || "❌ Failed to summarize. Please try again.";
+    }
+
+    updateTimerDisplay();
+  </script>
+  {% endblock %}
+</body>
+
+</html>

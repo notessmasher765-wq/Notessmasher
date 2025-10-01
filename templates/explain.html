@@ -1,0 +1,47 @@
+<!-- explain.html -->
+{% extends "base.html" %}
+
+{% block title %}Explain to Learn | StudySpark{% endblock %}
+
+{% block content %}
+
+
+<div style="max-width: 700px; margin: auto; padding: 24px; background: white; border-radius: 16px; box-shadow: 0 0 15px rgba(0,0,0,0.1);">
+  <h2 style="color: #6a1b9a; font-weight: bold;">🧠 Explain to Learn</h2>
+  <p style="margin-bottom: 20px; color: #444;">Struggling with a concept? Drop your question here. Someone from the crew might just save your GPA. Or flex your knowledge — answer someone else's!</p>
+
+  <!-- 🌟 Post a Question Form -->
+  <form method="POST" enctype="multipart/form-data">
+    <label style="font-weight: bold;">📝 Topic:</label>
+    <input type="text" name="topic" required placeholder="e.g., Explain Linear Regression" 
+           style="width: 100%; padding: 10px; margin: 10px 0; border-radius: 8px; border: 1px solid #ccc;" />
+
+    <label style="font-weight: bold;">🧾 Description (optional):</label>
+    <textarea name="description" rows="3" placeholder="Mention any details, doubts, etc." 
+              style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc; margin-bottom: 10px;"></textarea>
+
+    <label style="font-weight: bold;">🖼️ Upload an image (optional):</label><br>
+    <input type="file" name="image" accept="image/*" 
+           style="margin: 10px 0 20px 0; border: none;" />
+
+    <button type="submit" style="background-color: #6a1b9a; color: white; padding: 10px 20px; border: none; border-radius: 8px;">🚀 Post It</button>
+  </form>
+
+  <hr style="margin: 30px 0;" />
+
+  <!-- 📚 Recent Questions List -->
+  <h3 style="color: #6a1b9a;">📌 Recent Questions</h3>
+  {% for q in questions %}
+    <div style="padding: 15px 0; border-bottom: 1px solid #eee;">
+      <h4><a href="{{ url_for('routes.question', question_id=q.id) }}" 
+             style="color: #333; text-decoration: none; font-weight: 600;">{{ q.topic }}</a></h4>
+      <p style="font-size: 14px; color: #777;">Asked by {{ q.user.name if q.user else "Anonymous" }} on {{ q.timestamp.strftime('%d %b %Y') }}</p>
+      {% if q.image_filename %}
+        <img src="{{ url_for('uploaded_image', filename=q.image_filename) }}" alt="Image" style="max-width: 100%; border-radius: 8px; margin-top: 10px;" />
+      {% endif %}
+    </div>
+  {% else %}
+    <p style="color: #999;">No questions yet. Be the trendsetter 🌟</p>
+  {% endfor %}
+</div>
+{% endblock %}

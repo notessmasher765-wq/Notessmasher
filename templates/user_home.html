@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Welcome to Study Resources</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f3e5f5;
+            color: #4a148c;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background: #4f1970;
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+            background-image: url('https://www.transparenttextures.com/patterns/stardust.png');
+        }
+
+        header h1 {
+            font-size: clamp(1.8rem, 4vw, 3em);
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: clamp(1rem, 2.5vw, 1.2em);
+
+        }
+
+        .cta-btn {
+            background-color: #ce93d8;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 15px;
+            transition: 0.3s ease;
+            font-size: clamp(0.9rem, 2.2vw, 1em);
+            padding: clamp(8px, 2vw, 12px) clamp(14px, 3vw, 20px);
+        }
+
+        .cta-btn:hover {
+            background-color: #ab47bc;
+            transform: scale(1.05);
+        }
+
+        .section {
+            padding: clamp(20px, 5vw, 40px) clamp(15px, 4vw, 20px);
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .cards {
+            display: flex;
+            flex-wrap: wrap;
+            gap: clamp(10px, 3vw, 20px);
+            /* dynamic spacing */
+            justify-content: center;
+        }
+
+        .card-link {
+            text-decoration: none;
+            color: inherit;
+            flex: 1 1 clamp(220px, 40%, 300px);
+            max-width: 300px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: clamp(15px, 3vw, 20px);
+            text-align: center;
+            transition: 0.3s ease;
+            height: 230px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+        }
+
+        .card h3 {
+            color: #6a1b9a;
+            margin-bottom: 10px;
+        }
+
+        .card p {
+            font-size: 0.95em;
+        }
+
+        .emoji {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            background: #e1bee7;
+            color: #6a1b9a;
+        }
+    </style>
+</head>
+
+<body>
+    {% extends "base.html" %}
+
+    {% block title %}Home | Notes Smasher{% endblock %}
+
+    {% block content %}
+    <header>
+        <h1>Welcome to Notes Smasher 📘</h1>
+        <p>Your lavender-themed hub for sharing, learning, and growing — together.</p>
+        <a href="{{ url_for('routes.register') }}" class="cta-btn">Join Now ✨</a>
+    </header>
+
+    <div class="section">
+        <h2 style="text-align:center">Explore Our Features 💡</h2>
+        <div class="cards">
+
+            <a href="{{ url_for('routes.upload') }}" class="card-link">
+                <div class="card">
+                    <div class="emoji">📤</div>
+                    <h3>Upload Notes</h3>
+                    <p>Share your notes with others or keep them organized privately.</p>
+                </div>
+            </a>
+
+            <a href="{{ url_for('routes.my_notes') }}" class="card-link">
+                <div class="card">
+                    <div class="emoji">🗂️</div>
+                    <h3>My Notes</h3>
+                    <p>Access and manage all your uploaded content in one place.</p>
+                </div>
+            </a>
+
+            <a href="{{ url_for('routes.view_notes') }}" class="card-link">
+                <div class="card">
+                    <div class="emoji">🌐</div>
+                    <h3>View Public Notes</h3>
+                    <p>Explore notes shared by students across various subjects.</p>
+                </div>
+            </a>
+
+            <a href="{{ url_for('routes.sticky_notes') }}" class="card-link">
+                <div class="card">
+                    <div class="emoji">📝</div>
+                    <h3>Sticky Notes</h3>
+                    <p>Quickly jot down tasks, reminders, or revision points digitally.</p>
+                </div>
+            </a>
+
+            <a href="{{ url_for('routes.explain') }}" class="card-link">
+                <div class="card">
+                    <div class="emoji">🧠</div>
+                    <h3>Explain to Learn</h3>
+                    <p>Practice Feynman technique — explain tough topics to reinforce learning.</p>
+                </div>
+            </a>
+
+            <a href="{{ url_for('routes.contact') }}" class="card-link">
+                <div class="card">
+                    <div class="emoji">📬</div>
+                    <h3>Contact</h3>
+                    <p>Facing an issue or have a question? We’re here to help!</p>
+                </div>
+            </a>
+
+            <a href="{{ url_for('routes.suggest_feature') }}" class="card-link">
+                <div class="card">
+                    <div class="emoji">💡</div>
+                    <h3>Suggest a Feature</h3>
+                    <p>Got ideas? Suggest features that would make Study Resources even better!</p>
+                </div>
+            </a>
+
+
+
+
+            <a href="{{url_for('routes.feedback') }}" class="card-link">
+                <div class="card">
+                    <div class="emoji">📣</div>
+                    <h3>Feedback</h3>
+                    <p>We love to improve! Leave us a message anytime.</p>
+                </div>
+            </a>
+
+            <a href="{{url_for('routes.about_us') }}" class="card-link">
+                <div class="card">
+                    <div class="emoji">👩‍💻</div>
+                    <h3>About Us</h3>
+                    <p>Learn why Notes Smasher was built and who's behind it (hint: it's Anamika 😉).</p>
+                </div>
+            </a>
+
+        </div>
+    </div>
+
+    <footer>
+        &copy; 2025 Notes Smasher . Built with 💜, Flask & ambition.
+    </footer>
+    {% endblock %}
+
+</body>
+
+</html>

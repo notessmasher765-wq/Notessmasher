@@ -1,0 +1,202 @@
+<style>
+    /* Navbar */
+    nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: clamp(0.5rem, 2vw, 1rem) clamp(1rem, 5vw, 3rem);
+        background: linear-gradient(135deg, #f5f5dc, #ce93d8);
+
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+    }
+
+    nav .logo {
+        font-size: clamp(1.2rem, 2.5vw, 1.5rem);
+        font-weight: bold;
+        color: #6a1b9a;
+    }
+
+    nav ul {
+        list-style: none;
+        display: flex;
+        gap: 2rem;
+        align-items: center;
+    }
+
+    nav ul li {
+        position: relative;
+    }
+
+    nav ul li a {
+        text-decoration: none;
+        color: #333;
+        font-weight: 500;
+        padding: 8px 12px;
+        transition: 0.3s;
+        border-radius: 6px;
+    }
+
+    nav ul li a:hover {
+        color: #6a1b9a;
+        background: #f3e5f5;
+    }
+
+    /* Dropdown */
+    .dropdown {
+        display: none;
+        position: absolute;
+        background: #fff;
+        min-width: 180px;
+        top: 120%;
+        left: 0;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+    }
+
+    .dropdown a {
+        display: block;
+        padding: 10px;
+        color: #333;
+        text-align: left;
+    }
+
+    .dropdown a:hover {
+        background: #f3e5f5;
+        color: #6a1b9a;
+    }
+
+    nav ul li:hover .dropdown {
+        display: block;
+    }
+
+    #searchResults {
+        position: absolute;
+        /* ensures dropdown sits below input */
+        top: 40px;
+        /* adjust this based on your input height */
+        left: 0;
+        width: 250px;
+        /* adjust width if needed */
+        max-height: 200px;
+        overflow-y: auto;
+        display: none;
+        background: #fff;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        border-radius: 6px;
+        z-index: 2000;
+        /* ensures it’s on top of other elements */
+    }
+</style>
+
+<!-- templates/navbar.html -->
+<nav>
+    <div class="logo">    <a href="{{ url_for('routes.home') }}" 
+           style="text-decoration: none; color: inherit; font-weight: bold; font-size: 1.3rem;">
+            Notes Smasher
+        </a></div>
+    <ul>
+        <li><a href="{{ url_for('routes.user_home') }}">Home</a></li>
+        <li><a href="{{ url_for('routes.upload') }}">Upload Notes</a></li>
+        <li>
+            <a href="#">Notes ▼</a>
+            <div class="dropdown">
+                <a href="{{ url_for('routes.my_notes') }}">My Notes</a>
+                <a href="{{ url_for('routes.view_notes') }}">View Notes</a>
+            </div>
+        </li>
+        <li><a href="{{ url_for('routes.aktu') }}">AKTU</a>
+
+        </li>
+        <li><a href="{{ url_for('routes.dashboard') }}">Dashboard</a></li>
+        <li><a href="{{ url_for('routes.auth') }}">Login / Register</a></li>
+        <li>
+            <a href="#">Contact ▼</a>
+            <div class="dropdown">
+                <a href="{{ url_for('routes.contact') }}">Collaboration (Work With Us)</a>
+                <a href="{{ url_for('routes.about_us') }}">About Us</a>
+            </div>
+        </li>
+        <li>
+            <input type="text" id="noteSearch" placeholder="Search notes..."
+                style="padding:6px 10px; border-radius:6px; border:1px solid #ccc;">
+            <div id="searchResults"
+                style="position:absolute; background:#fff; max-height:200px; overflow-y:auto; display:none; box-shadow:0 4px 10px rgba(0,0,0,0.1); border-radius:6px;">
+            </div>
+        </li>
+
+
+        <li>
+            <a href="{{ url_for('routes.profile') }}" title="My Profile">
+                <img src="{{ url_for('static', filename='images/image.png') }}" alt="Profile Icon" width="35"
+                    height="35" style="border-radius: 50%; vertical-align: middle;">
+            </a>
+        </li>
+    </ul>
+    <script>
+        const searchInput = document.getElementById('noteSearch');
+        const resultsDiv = document.getElementById('searchResults');
+
+        searchInput.addEventListener('input', () => {
+            const query = searchInput.value.trim();
+            resultsDiv.innerHTML = '';
+
+            if (query) {
+                resultsDiv.style.display = 'block';
+                resultsDiv.innerHTML = '<div style="padding:8px; color:#666;">Searching...</div>';
+
+                fetch(`/search_notes?q=${encodeURIComponent(query)}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        resultsDiv.innerHTML = '';
+                        if (data.length === 0) {
+                            resultsDiv.innerHTML = '<div style="padding:8px; color:#666;">No results found</div>';
+                        } else {
+                            data.forEach(n => {
+                                const div = document.createElement('div');
+                                div.textContent = n.title;
+                                div.style.padding = '8px';
+                                div.style.cursor = 'pointer';
+                                div.addEventListener('click', () => {
+                                    window.location.href = `/view_notes?search=${encodeURIComponent(n.title)}`;
+                                });
+                                resultsDiv.appendChild(div);
+                            });
+                        }
+                    }).catch(err => {
+                        console.error(err);
+                        resultsDiv.innerHTML = '<div style="padding:8px; color:red;">Error fetching results</div>';
+                    });
+            } else {
+                resultsDiv.style.display = 'none';
+            }
+        });
+
+        // Redirect on Enter key press
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const query = searchInput.value.trim();
+                if (query) {
+                    window.location.href = `/view_notes?search=${encodeURIComponent(query)}`;
+                }
+            }
+        });
+
+        // Hide results when clicked outside
+        document.addEventListener('click', (e) => {
+            if (!searchInput.contains(e.target) && !resultsDiv.contains(e.target)) {
+                resultsDiv.style.display = 'none';
+            }
+        });
+
+         function toggleMenu() {
+        document.getElementById("navLinks").classList.toggle("show");
+    }
+    </script>
+
+
+
+</nav>

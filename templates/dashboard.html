@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard | StudySpark</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f3e5f5;
+      margin: 0;
+ padding: clamp(15px, 5vw, 40px);      color: #4a148c;
+    }
+
+    .dashboard-container {
+      max-width: 1100px;
+      margin: auto;
+      display: flex;
+      flex-direction: column;
+      gap: clamp(15px, 3vw, 30px);
+    }
+
+    .announcement-banner {
+      padding: clamp(10px, 2vw, 15px) clamp(15px, 3vw, 25px);
+      gap: clamp(6px, 2vw, 10px);
+      background-color: #e1bee7;
+      border-radius: 15px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+    
+    }
+
+    .announcement-banner i {
+      color: #6a1b9a;
+    }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background-color: #ffffff;
+      border-radius: 15px;
+      padding: clamp(15px, 3vw, 20px);
+      box-shadow: 0 0 15px rgba(106, 27, 154, 0.1);
+    }
+
+    .card h3 {
+      margin-top: 0;
+      color: #6a1b9a;
+    }
+
+    .note-item {
+      margin-bottom: 8px;
+    }
+
+    .note-boxes {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    .note-card {
+      padding: clamp(8px, 2vw, 12px) clamp(10px, 2vw, 15px);
+  font-size: clamp(0.9rem, 1.8vw, 1rem);
+      background: #f8eafa;
+      border-radius: 10px;
+      font-weight: 500;
+    }
+
+    .filter-controls input,
+    .filter-controls select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 10px;
+      border: 1px solid #ce93d8;
+      background-color: #fdf9ff;
+    }
+
+    @media (max-width: 600px) {
+      .dashboard-container {
+        padding: 10px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  {% extends "base.html" %}
+
+{% block title %}Dashboard | StudySpark{% endblock %}
+
+{% block content %}
+
+  <div class="dashboard-container">
+
+    <!-- Mini Announcement Banner -->
+    <div class="announcement-banner">
+      <i class="fa fa-bullhorn"></i>
+      New Feature: Suggest a Feature page added! 🎉
+    </div>
+
+    <div class="dashboard-grid">
+
+      <!-- Recently Viewed Notes -->
+      <div class="card">
+        <h3>📌 Recently Viewed</h3>
+        {% if recently_viewed %}
+        {% for note in recently_viewed %}
+        <div class="note-item">
+          • <a href="{{ url_for('routes.view_note_page', note_id=note.id) }}" style="color:#6a1b9a; text-decoration:none;">
+            {{ note.title }}
+          </a> – {{ note.subject }}
+        </div>
+        {% endfor %}
+
+        {% else %}
+        <div class="note-item">No notes viewed recently.</div>
+        {% endif %}
+
+      </div>
+
+      <!-- Filter + Sort -->
+      <div class="card filter-controls">
+        <h3>🔍 Filter & Sort</h3>
+        <input type="text" placeholder="Search notes...">
+        <select>
+          <option>Filter: All</option>
+          <option>My Notes</option>
+          <option>Public Notes</option>
+        </select>
+        <select>
+          <option>Sort By: Latest</option>
+          <option>Oldest First</option>
+          <option>Most Downloaded</option>
+        </select>
+      </div>
+
+      <!-- Saved Notes -->
+      <div class="card">
+        <h3>⭐ Saved Notes</h3>
+        {% if saved_notes %}
+        {% for saved in saved_notes %}
+        <div class="note-item">• {{ saved.note.title }} – {{ saved.note.subject }}</div>
+        {% endfor %}
+        {% else %}
+        <div class="note-item">No saved notes yet.</div>
+        {% endif %}
+      </div>
+
+
+      <!-- Upload Stats -->
+      <div class="card">
+        <h3>📈 Upload Stats</h3>
+        <div>📝 Notes Uploaded: <strong>{{ upload_count }}</strong></div>
+        <div>⬇️ Downloads: <strong>{{ download_count }}</strong></div>
+        <div>🌍 Public Notes Available: <strong>{{ public_view_count }}</strong></div>
+      </div>
+
+
+    </div>
+
+    <!-- Latest Public Notes (dynamic with save button) -->
+    <div class="card">
+      <h3>🌐 Latest Public Notes</h3>
+      <div class="note-boxes">
+        {% for note in public_notes %}
+        <div class="note-card">
+          {{ note.title }} – {{ note.subject }}
+          <form action="{{ url_for('save_note', note_id=note.id) }}" method="POST" style="display:inline;">
+            <button type="submit" style="background:none; border:none; color:#6a1b9a; cursor:pointer;">⭐ Save</button>
+          </form>
+        </div>
+        {% endfor %}
+        {% if not public_notes %}
+        <div class="note-card">No public notes available.</div>
+        {% endif %}
+      </div>
+    </div>
+
+
+  </div>
+
+  <!-- Font Awesome for icons -->
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+{% endblock %}
+  
+</body>
+
+</html>
+
+
+<!--  NEWCOM649 -->

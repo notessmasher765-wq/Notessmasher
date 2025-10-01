@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Sticky Notes</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background: #f3e5f5;
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding: 20px;
+      overflow: hidden;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      text-align: center;
+      color: #6a1b9a;
+      font-size: 2.5rem;
+      margin-bottom: 30px;
+    }
+
+    form {
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 16px;
+      box-shadow: 0 0 15px rgba(106, 27, 154, 0.15);
+      margin-bottom: 30px;
+    }
+
+    textarea {
+      width: 100%;
+      height: 100px;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid #ce93d8;
+      font-size: 16px;
+      font-family: 'Inter', sans-serif;
+      resize: none;
+    }
+
+    button {
+      margin-top: 12px;
+      background-color: #6a1b9a;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 10px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #4a148c;
+    }
+
+    .note {
+      background-color: #c5e2ff;
+      border-radius: 12px;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+      padding: 12px;
+      position: absolute;
+      width: 200px;
+      cursor: grab;
+      transition: transform 0.1s;
+    }
+
+    .note p {
+      margin: 0;
+      font-size: 15px;
+      color: #4a148c;
+      word-wrap: break-word;
+    }
+  </style>
+</head>
+<body>
+
+  {% extends "base.html" %}
+
+{% block title %}Sticky Notes | StudySpark{% endblock %}
+
+{% block content %}
+<div class="container">
+  <h1>🗒️ Sticky Notes</h1>
+
+  <form method="POST">
+    <textarea name="note" placeholder="Write your note..." required></textarea>
+    <button type="submit">Add Note</button>
+  </form>
+</div>
+
+<!-- Sticky Notes -->
+{% for note in notes %}
+  <div class="note" id="note-{{ note.id }}" style="top: {{ note.y }}px; left: {{ note.x }}px;">
+    <p>{{ note.content }}</p>
+  </div>
+{% endfor %}
+<script>
+  const notes = document.querySelectorAll('.note');
+  let draggedNote = null;
+  let offsetX = 0;
+  let offsetY = 0;
+
+  notes.forEach(note => {
+    note.addEventListener('mousedown', function (e) {
+      draggedNote = note;
+      offsetX = e.clientX - note.offsetLeft;
+      offsetY = e.clientY - note.offsetTop;
+      note.style.zIndex = 1000;
+    });
+  });
+
+  document.addEventListener('mousemove', function (e) {
+    if (draggedNote) {
+      draggedNote.style.left = (e.clientX - offsetX) + 'px';
+      draggedNote.style.top = (e.clientY - offsetY) + 'px';
+    }
+  });
+
+  document.addEventListener('mouseup', function (e) {
+    if (draggedNote) {
+      const noteId = draggedNote.id.split('-')[1];
+      const x = parseInt(draggedNote.style.left);
+      const y = parseInt(draggedNote.style.top);
+
+      // Send position update to backend
+      fetch(`/update_position/${noteId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ x, y })
+      });
+
+      draggedNote.style.zIndex = 1;
+      draggedNote = null;
+    }
+  });
+</script>
+
+    {% endblock %}
+
+
+</body>
+</html>

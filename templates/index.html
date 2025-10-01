@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudySpark - Home</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: #f3e5f5;
+            color: #333;
+        }
+
+
+
+        /* Dropdown */
+        .dropdown {
+            display: none;
+            position: absolute;
+            background: #fff;
+            min-width: 180px;
+            top: 120%;
+            left: 0;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        .dropdown a {
+            display: block;
+            padding: 10px;
+            color: #333;
+            text-align: left;
+        }
+
+        .dropdown a:hover {
+            background: #f3e5f5;
+            color: #6a1b9a;
+        }
+
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 1.95rem 2rem;
+            background: #6a1b9a;
+            /* 💜 solid purple */
+            background-size: 200% 200%;
+            color: white;
+            border-bottom-left-radius: 50% 10%;
+            border-bottom-right-radius: 50% 10%;
+        }
+
+        @keyframes gradientShift {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        .hero h1 {
+            font-size: clamp(1.5rem, 5vw, 2.5rem);
+            margin-bottom: 1rem;
+        }
+
+        .hero p {
+            font-size: clamp(1rem, 3vw, 1.2rem);
+            margin-bottom: 2rem;
+        }
+
+        .btn-primary {
+            background: white;
+            color: #6a1b9a;
+            padding: clamp(0.6rem, 1.5vw, 0.8rem) clamp(1rem, 3vw, 1.5rem);
+            font-size: clamp(0.9rem, 2vw, 1rem);
+            border-radius: 30px;
+            font-weight: bold;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+
+        .btn-primary:hover {
+            background: #6a1b9a;
+            color: white;
+        }
+
+        /* Features Section */
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: clamp(1rem, 2vw, 2rem);
+            padding: 1.9rem;
+            text-align: center;
+        }
+
+        .feature-card {
+            background: linear-gradient(145deg, #ffffff, #f8f3fb);
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 6px 15px rgba(106, 27, 154, 0.1);
+            transition: 0.4s ease-in-out;
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+
+
+
+        }
+
+        /* Show links permanently instead of only on hover */
+        .reveal-card .reveal-links {
+            opacity: 1;
+            /* always visible */
+            transform: translateY(0);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            transition: 0.3s ease-in-out;
+        }
+
+        /* Style each link like a chip */
+        .reveal-card .reveal-links a {
+            padding: 6px 14px;
+            background: #c4c5c6;
+            color: #6a1b9a;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            text-decoration: none;
+            font-weight: 500;
+            cursor: pointer;
+            /* 👆 hand cursor always */
+            transition: transform 0.2s, background 0.3s, color 0.3s;
+        }
+
+        /* Hover effect: purple + zoom */
+        .reveal-card .reveal-links a:hover {
+            background: #6a1b9a;
+            /* 💜 purple */
+            color: white;
+            transform: scale(1.1);
+            /* 🔍 zoom */
+        }
+
+
+
+        .feature-card h3 {
+            color: #6a1b9a;
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .feature-card p a {
+            color: #6a1b9a;
+            font-weight: 500;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+
+        .feature-card p a:hover {
+            color: #4a148c;
+            text-decoration: underline;
+        }
+
+        /* Hover Effects */
+        .feature-card:hover {
+            transform: translateY(-8px) scale(1.03);
+            box-shadow: 0 10px 25px rgba(106, 27, 154, 0.2);
+            border: 2px solid #ce93d8;
+        }
+
+        .feature-card::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(206, 147, 216, 0.15), transparent 70%);
+            transform: scale(0);
+            transition: 0.4s;
+            border-radius: 50%;
+        }
+
+        .feature-card:hover::before {
+            transform: scale(1);
+        }
+
+        /* Latest Uploaded Notes */
+        .latest-notes {
+            padding: .95rem;
+            background: #f8f3fb;
+            text-align: center;
+        }
+
+        .latest-notes h2 {
+            color: #6a1b9a;
+            font-size: 1.8rem;
+            margin-bottom: 2rem;
+        }
+
+        .notes-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: clamp(1rem, 2vw, 2rem);
+        }
+
+        .note-card {
+            display: flex;
+            background: white;
+            padding: 1rem;
+            border-radius: 12px;
+            box-shadow: 0 6px 12px rgba(106, 27, 154, 0.1);
+            align-items: center;
+            gap: 1rem;
+            transition: 0.3s;
+            border: 1px solid #e1bee7;
+        }
+
+        .note-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 18px rgba(106, 27, 154, 0.2);
+        }
+
+        .note-card img {
+            width: 90px;
+            height: auto;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+        }
+
+        .note-info {
+            text-align: left;
+        }
+
+        .note-info a {
+            font-weight: 600;
+            color: #6a1b9a;
+            text-decoration: none;
+        }
+
+        .note-info a:hover {
+            text-decoration: underline;
+            color: #4a148c;
+        }
+
+        .note-info p {
+            font-size: 0.9rem;
+            margin: 2px 0;
+            color: #555;
+        }
+
+        .rating {
+            color: green;
+            font-weight: 500;
+        }
+
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2rem;
+            background: #6a1b9a;
+            color: white;
+            margin-top: 2rem;
+        }
+
+        .flash {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 15px 25px;
+            border-radius: 12px;
+            font-weight: bold;
+            z-index: 9999;
+            opacity: 0.95;
+            min-width: 200px;
+            text-align: center;
+        }
+
+        .flash.success {
+            background-color: #c8e6c9;
+            color: #256029;
+        }
+
+        .flash.danger {
+            background-color: #ffcdd2;
+            color: #b71c1c;
+        }
+
+        /* Optional: fade out after 3s */
+        .flash.fade-out {
+            animation: fadeOut 3s forwards;
+        }
+
+        @keyframes fadeOut {
+            0% {
+                opacity: 0.95;
+            }
+
+            80% {
+                opacity: 0.95;
+            }
+
+            100% {
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    {% include 'navbar.html' %}
+
+    <!-- 🔔 Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for category, message in messages %}
+    <div class="flash {{ category }}">{{ message }}</div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+
+    <!-- Hero -->
+    <section class="hero">
+        <h1>Study Smart, Share Smarter</h1>
+        <p>Your hub for notes, learning, and collaboration.</p>
+        <a href="{{ url_for('routes.upload') }}" class="btn-primary">Get Started</a>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features">
+        <div class="feature-card reveal-card">
+            <h3>💡 Study Tips</h3>
+            <div class="reveal-links">
+                <a href="{{ url_for('routes.study_tips') }}">View Tips</a>
+                <a href="{{ url_for('routes.share_tips') }}">Share Your Tip</a>
+            </div>
+        </div>
+
+        <div class="feature-card reveal-card">
+            <h3>📄 PYQs</h3>
+            <div class="reveal-links">
+                <a href="#">Semester-wise</a>
+                <a href="#">Subject-wise</a>
+                <a href="#">Class 10</a>
+                <a href="#">Class 12</a>
+            </div>
+        </div>
+
+        <div class="feature-card reveal-card">
+            <h3>❓ Ask Any Question</h3>
+            <div class="reveal-links">
+                <p><a href="{{ url_for('routes.explain') }}">Go to Q&A</a></p>
+                <p><a href="{{ url_for('routes.view_question') }}">Ask a Question</a></p>
+            </div>
+        </div>
+        <div class="feature-card reveal-card">
+            <h3>📝 Sticky Notes</h3>
+            <div class="reveal-links">
+                <p><a href="{{ url_for('routes.sticky_notes') }}">Open Sticky Notes</a></p>
+            </div>
+        </div>
+        <div class="feature-card reveal-card">
+            <h3>⏱️ Pomodoro</h3>
+            <div class="reveal-links">
+                <p><a href="{{ url_for('routes.pomodoro') }}">Start Timer</a></p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <section class="latest-notes">
+        <h2>📚 Latest Uploaded Notes</h2>
+        <div class="notes-container">
+
+            {% if latest_notes %}
+            {% for note in latest_notes %}
+            <div class="note-card">
+                <!-- Thumbnail or default image -->
+                <img src="{{ note.thumbnail_url or url_for('static', filename='images/default-note.png') }}"
+                    alt="Note Preview">
+
+                <div class="note-info">
+                    <!-- Title linked to single-note page -->
+                    <a href="{{ url_for('routes.view_notes', note_id=note.id) }}">
+                        {{ note.title }}
+                    </a>
+
+                    <p>
+                        Pages: {{ note.pages if note.pages else "N/A" }} •
+                        {{ note.created_at.strftime('%Y-%m-%d') if note.created_at else "N/A" }}
+                    </p>
+
+
+                </div>
+            </div>
+            {% endfor %}
+            {% else %}
+            <p>No notes uploaded yet. Be the first! 🚀</p>
+            {% endif %}
+
+        </div>
+    </section>
+
+
+
+    <footer>
+        <p>&copy; 2025 Notes Smasher. All Rights Reserved.</p>
+        <a href="#">Feedback</a>
+    </footer>
+
+    <script>
+        // Add fade-out class automatically
+        const flashes = document.querySelectorAll('.flash');
+        flashes.forEach(flash => {
+            flash.classList.add('fade-out');
+            setTimeout(() => flash.remove(), 3000);
+        });
+    </script>
+
+
+</body>
+
+</html>

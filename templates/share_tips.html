@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Share Your Study Tip</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f3e5f5;
+            margin: 0;
+            padding: clamp(15px, 5vw, 40px) clamp(10px, 4vw, 20px);
+        }
+
+        .container {
+            max-width: 700px;
+            margin: auto;
+            background: white;
+            border-radius: 16px;
+            padding: clamp(20px, 5vw, 40px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            color: #6a1b9a;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        label {
+            display: block;
+            margin-top: clamp(15px, 4vw, 20px);
+            font-weight: bold;
+            color: #4a148c;
+        }
+
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: clamp(10px, 2.5vw, 12px);
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            margin-top: 8px;
+            resize: vertical;
+            font-size: clamp(14px, 2.5vw, 15px);
+        }
+
+        button {
+            margin-top: clamp(20px, 5vw, 30px);
+            background-color: #6a1b9a;
+            color: white;
+            padding: clamp(10px, 3vw, 12px) clamp(20px, 6vw, 24px);
+            border: none;
+            border-radius: 12px;
+            font-size: clamp(14px, 3vw, 16px);
+            cursor: pointer;
+            display: block;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: #4a148c;
+        }
+    </style>
+</head>
+
+<body>
+    {% extends "base.html" %}
+
+    {% block title %}Share Your Study Tip | StudySpark{% endblock %}
+
+    {% block content %}
+    <div class="container">
+        <h2>✍️ Share Your Study Tip</h2>
+        <form method="POST">
+            <label for="author">Your Name (Optional)</label>
+            <input type="text" name="author" id="author" placeholder="e.g., Anamika">
+
+            <label for="tip">Your Study Tip</label>
+            <textarea name="tip" id="tip" rows="6" placeholder="Write your tip here..." required></textarea>
+
+            <button type="submit">🚀 Submit Tip</button>
+        </form>
+    </div>
+    {% endblock %}
+
+</body>
+
+</html>

@@ -1,0 +1,6 @@
+@echo off
+call venv\Scripts\activate
+python app.py
+pause
+
+cd "C:\Study Resources"

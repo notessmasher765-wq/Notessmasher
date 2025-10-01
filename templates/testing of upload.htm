@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Upload Notes</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f3e5f5;
+            margin: 0;
+            padding: 40px;
+        }
+
+        h2 {
+            text-align: center;
+            color: #6a1b9a;
+            margin-bottom: 30px;
+        }
+
+        .flash {
+            max-width: 900px;
+            margin: 0 auto 20px auto;
+            padding: 15px 20px;
+            border-radius: 12px;
+            font-size: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .flash-success {
+            background-color: #dcedc8;
+            color: #33691e;
+        }
+
+        .flash-error {
+            background-color: #ffccbc;
+            color: #b71c1c;
+        }
+
+        form {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+            max-width: 900px;
+            margin: auto;
+        }
+
+        label {
+            font-weight: bold;
+            display: block;
+            margin-top: 20px;
+            color: #4a148c;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px;
+            margin-top: 6px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            font-size: 15px;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-btn {
+            background-color: #6a1b9a;
+            color: white;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            width: 100%;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 30px;
+        }
+
+        .form-btn:hover {
+            background-color: #8e24aa;
+        }
+
+        .field-group {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .field-group>div {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .note-box {
+            margin: 30px auto;
+            max-width: 900px;
+            background-color: #fce4ec;
+            color: #6a1b9a;
+            padding: 15px 20px;
+            border-left: 6px solid #ba68c8;
+            border-radius: 12px;
+            font-size: 15px;
+        }
+
+        /* Disabled form styles */
+        .disabled-form input,
+        .disabled-form select,
+        .disabled-form textarea,
+        .disabled-form button {
+            background-color: #e0e0e0;
+            color: #b0b0b0;
+            cursor: not-allowed;
+        }
+
+        .disabled-form .form-btn {
+            cursor: not-allowed;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 20px;
+            }
+
+            form {
+                padding: 20px;
+            }
+
+            .field-group {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .form-btn {
+                font-size: 14px;
+                padding: 12px;
+            }
+
+            h2 {
+                font-size: 22px;
+            }
+        }
+    </style>
+   <script>
+  function toggleUploadFields() {
+      const userType = document.getElementById('user_type').value;
+      document.getElementById('collegeFields').style.display = userType === 'college' ? 'block' : 'none';
+      document.getElementById('schoolFields').style.display = userType === 'school' ? 'block' : 'none';
+  }
+
+  window.onload = () => {
+      toggleUploadFields();
+  };
+
+  document.addEventListener("DOMContentLoaded", () => {
+      const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
+
+      // File upload preview + size check
+      const fileInput = document.getElementById("file");
+      const filePreview = document.getElementById("filePreview");
+      const fileError = document.getElementById("fileError");
+
+      if (fileInput) {
+          fileInput.addEventListener("change", () => {
+              filePreview.innerHTML = "";
+              fileError.textContent = "";
+
+              Array.from(fileInput.files).forEach(file => {
+                  if (file.size > MAX_FILE_SIZE) {
+                      fileError.textContent = `❌ ${file.name} is too large (max 10 MB).`;
+                  } else {
+                      const li = document.createElement("li");
+                      li.textContent = `${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`;
+                      filePreview.appendChild(li);
+                  }
+              });
+          });
+      }
+
+      // Live textarea character counter
+      const textarea = document.getElementById("typed_content");
+      const charCount = document.getElementById("charCount");
+      if (textarea) {
+          textarea.addEventListener("input", () => {
+              charCount.textContent = textarea.value.length;
+          });
+      }
+
+      // Progress fills
+      const progressFills = document.querySelectorAll(".progress-fill");
+      progressFills.forEach(fill => {
+          const progress = fill.getAttribute("data-progress");
+          fill.style.width = progress + "%";
+      });
+
+      // Upload progress bar
+      const form = document.querySelector("form");
+      const progressContainer = document.getElementById("progressContainer");
+      const uploadProgress = document.getElementById("uploadProgress");
+
+      if (form) {
+          form.addEventListener("submit", (e) => {
+              e.preventDefault(); // Stop normal form for demo; replace with AJAX in real app
+
+              const formData = new FormData(form);
+              const xhr = new XMLHttpRequest();
+
+              xhr.open("POST", form.action, true);
+
+              xhr.upload.addEventListener("progress", (e) => {
+                  if (e.lengthComputable) {
+                      const percent = Math.round((e.loaded / e.total) * 100);
+                      progressContainer.style.display = "block";
+                      uploadProgress.style.width = percent + "%";
+                      uploadProgress.textContent = percent + "%";
+                  }
+              });
+
+              xhr.onload = () => {
+                  if (xhr.status === 200) {
+                      uploadProgress.style.background = "#388e3c";
+                      uploadProgress.textContent = "✅ Uploaded!";
+                  } else {
+                      uploadProgress.style.background = "#b71c1c";
+                      uploadProgress.textContent = "❌ Failed!";
+                  }
+              };
+
+              xhr.send(formData);
+          });
+      }
+  });
+</script>
+
+</head>
+
+<body>
+    <h2>Upload Notes</h2>
+    {% if not current_user.is_authenticated %}
+    <div style="max-width:600px; margin:50px auto; background:white; padding:30px; 
+              border-radius:20px; text-align:center; box-shadow:0 6px 20px rgba(0,0,0,0.1);">
+        <h3 style="color:#6a1b9a; margin-bottom:20px;">🚫 Login Required</h3>
+        <p style="color:#555; margin-bottom:25px;">
+            You need to be logged in to upload your notes and share knowledge with others.
+        </p>
+        <a href="{{ url_for('routes.login') }}" style="background-color:#6a1b9a; color:white; padding:12px 25px; 
+              text-decoration:none; border-radius:12px; font-weight:bold; 
+              box-shadow:0 4px 10px rgba(0,0,0,0.1);">
+            🔐 Login / Register
+        </a>
+    </div>
+    {% else %}
+    <form method="POST" action="{{ url_for('routes.upload') }}" enctype="multipart/form-data"
+        class="{{ 'disabled-form' if not is_authenticated else '' }}">
+        <label for="user_type">You are a:</label>
+        <select name="user_type" id="user_type" onchange="toggleUploadFields()" required {% if not is_authenticated
+            %}disabled{% endif %}>
+            <option value="">Select...</option>
+            <option value="college">College Student</option>
+            <option value="school">School Student</option>
+        </select>
+
+        <div id="collegeFields" style="display: none;">
+            <label for="course_name">Course Name:</label>
+            <select name="course_name" {% if not is_authenticated %}disabled{% endif %}>
+                <option value="">Select...</option>
+                <option value="B.Tech">B.Tech</option>
+                <option value="BSc">B.Sc</option>
+                <option value="BCA">BCA</option>
+                <option value="BA">BA</option>
+                <option value="M.Tech">M.Tech</option>
+                <option value="MCA">MCA</option>
+                <option value="Other">Other</option>
+            </select>
+        </div>
+
+        <div id="schoolFields" style="display: none;">
+            <label for="class">Class:</label>
+            <select name="class" {% if not is_authenticated %}disabled{% endif %}>
+                <option value="">Select...</option>
+                <option value="6">6th</option>
+                <option value="7">7th</option>
+                <option value="8">8th</option>
+                <option value="9">9th</option>
+                <option value="10">10th</option>
+                <option value="11">11th</option>
+                <option value="12">12th</option>
+            </select>
+        </div>
+
+        <div class="field-group">
+            <div>
+                <label for="subject">Subject:</label>
+                <input type="text" name="subject" {% if not is_authenticated %}disabled{% endif %} required>
+            </div>
+            <div>
+                <label for="session">Session:</label>
+                <select name="session" {% if not is_authenticated %}disabled{% endif %} required>
+                    <option value="">Select Session...</option>
+                    <option value="2023-24">2023-24</option>
+                    <option value="2024-25">2024-25</option>
+                    <option value="2025-26">2025-26</option>
+                    <option value="2026-27">2026-27</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+        </div>
+
+        <label for="file">Upload File (PDF, DOC):</label>
+        <input type="file" id="file" name="file" accept=".pdf,.doc,.docx" multiple {% if not is_authenticated %}disabled{% endif %}>
+
+
+        <!-- File Preview Section -->
+        <ul id="filePreview" style="margin-top:10px; padding-left:20px; font-size:14px; color:#4a148c;"></ul>
+        <div id="fileError" style="color:#b71c1c; font-size:14px; margin-top:5px;"></div>
+
+        <label for="typed_content">Or Paste Your Notes:</label>
+        <textarea id="typed_content" name="typed_content" placeholder="Type or paste your notes here..." {% if not
+            is_authenticated %}disabled{% endif %}></textarea>
+        <div style="font-size:14px; color:#666; margin-top:5px;">
+            Characters: <span id="charCount">0</span>
+        </div>
+
+        <div id="progressContainer" style="display:none; margin-top:20px;">
+            <div style="background:#ddd; border-radius:10px; overflow:hidden; height:20px;">
+                <div id="uploadProgress" style="width:0%; background:#6a1b9a; height:100%; color:white; 
+      text-align:center; font-size:12px; line-height:20px; transition: width 0.3s;">
+           <div id="uploadProgress" ...>%</div>
+                </div>
+            </div>
+        </div>
+
+
+        <button type="submit" class="form-btn" {% if not is_authenticated %}disabled{% endif %}>Submit Notes</button>
+    </form>
+    {% endif %}
+    
+
+    
+    
+
+    <div class="note-box">
+        💡 <strong>Note:</strong> You can either upload a file or paste your notes. Both are optional, but at least one
+        is
+        recommended for better sharing!
+    </div>
+
+
+
+
+</body>
+
+</html>

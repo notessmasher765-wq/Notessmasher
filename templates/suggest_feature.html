@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Suggest a Feature</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        body {
+            background-color: #f3e5f5;
+            font-family: 'Segoe UI', sans-serif;
+            color: #4a148c;
+            padding: 40px;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 0 20px rgba(106, 27, 154, 0.2);
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 25px;
+            color: #6a1b9a;
+        }
+
+        label {
+            font-weight: bold;
+            display: block;
+            margin-top: 15px;
+            margin-bottom: 5px;
+            color: #4a148c;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ce93d8;
+            border-radius: 10px;
+            background: #fafafa;
+            resize: vertical;
+            font-size: 14px;
+        }
+
+        input[type="file"] {
+            margin-top: 8px;
+        }
+
+        .optional {
+            font-weight: normal;
+            font-size: 13px;
+            color: #888;
+        }
+
+        .submit-btn {
+            background-color: #6a1b9a;
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            font-size: 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            margin-top: 25px;
+            width: 100%;
+            transition: background-color 0.3s ease;
+        }
+
+        .submit-btn:hover {
+            background-color: #4a148c;
+        }
+
+        .status-section,
+        .archive-section {
+            margin-top: 40px;
+        }
+
+        .status-section h3,
+        .archive-section h3 {
+            color: #6a1b9a;
+            border-bottom: 2px solid #ce93d8;
+            padding-bottom: 5px;
+        }
+
+        .status-update {
+            margin: 10px 0;
+            background: #f3e5f5;
+            padding: 10px;
+            border-left: 5px solid #6a1b9a;
+            border-radius: 5px;
+        }
+
+        .search-bar {
+            margin-top: 10px;
+            margin-bottom: 20px;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid #ce93d8;
+        }
+    </style>
+</head>
+<body>
+    {% extends "base.html" %}
+
+{% block title %}Suggest a Feature | StudySpark{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h2>💡 Suggest a Feature</h2>
+        <form action="/submit_feature" method="POST" enctype="multipart/form-data">
+            <label>Title of Suggestion</label>
+            <input type="text" name="title" required placeholder="e.g. Add Dark Mode">
+
+            <label>Detailed Description</label>
+            <textarea name="description" rows="5" required placeholder="Tell us what the feature is, why it’s useful, and how it should work."></textarea>
+
+            <label>Category</label>
+            <select name="category" required>
+                <option value="">--Select Category--</option>
+                <option value="UI/UX">UI/UX Improvement</option>
+                <option value="Note-Taking">New Note-Taking Feature</option>
+                <option value="Dashboard">Dashboard Enhancement</option>
+                <option value="Upload System">Upload System</option>
+                <option value="Other">Other</option>
+            </select>
+
+            <label>Priority Level <span class="optional">(Optional)</span></label>
+            <select name="priority">
+                <option value="">--Select Priority--</option>
+                <option value="Low">Low</option>
+                <option value="Medium">Medium</option>
+                <option value="High">High</option>
+                <option value="Urgent">Urgent</option>
+            </select>
+
+            <label>Attachment <span class="optional">(Optional)</span></label>
+            <input type="file" name="attachment" accept="image/*,.pdf,.doc,.docx">
+
+            <label>User Name <span class="optional">(Auto-filled if logged in)</span></label>
+            <input type="text" name="username" placeholder="Anonymous if left blank">
+
+            <label>Email for Follow-up <span class="optional">(Optional)</span></label>
+            <input type="email" name="email" placeholder="Enter email if you want updates">
+
+            <button type="submit" class="submit-btn">🚀 Hit me with your genius</button>
+        </form>
+
+        <div class="status-section">
+            <h3>🕵️ Status Updates</h3>
+            <!-- <div class="status-update">✔️ "Add Dark Mode" – Implemented</div>
+            <div class="status-update">🔧 "Bulk Note Upload" – In Progress</div>
+            <div class="status-update">🔍 "Search Notes by Tags" – Under Review</div> -->
+        </div>
+
+        <div class="archive-section">
+            <h3>🎯 Suggestion Archive</h3>
+            <div class="search-bar">
+                <input type="text" placeholder="Search previous suggestions...">
+            </div>
+            <ul>
+                <li>📌 Allow pinned notes on dashboard</li>
+                <li>🖼️ Add option to insert images inside typed notes</li>
+                <li>🎨 Let users customize note colors</li>
+            </ul>
+        </div>
+    </div>
+        {% endblock %}
+
+</body>
+</html>

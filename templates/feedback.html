@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Send Feedback</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        body {
+            background-color: #f3e5f5;
+            font-family: 'Segoe UI', sans-serif;
+            color: #4a148c;
+            padding: clamp(15px, 5vw, 40px);
+        }
+
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background-color: white;
+            border-radius: 20px;
+            padding: clamp(15px, 4vw, 30px);
+            box-shadow: 0 0 20px rgba(106, 27, 154, 0.2);
+        }
+
+        h2 {
+            text-align: center;
+            color: #6a1b9a;
+            margin-bottom: 25px;
+        }
+
+        label {
+            font-weight: bold;
+            display: block;
+            margin-top: 15px;
+            color: #4a148c;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px;
+            margin-top: 6px;
+            border: 1px solid #ce93d8;
+            border-radius: 10px;
+            background-color: #fafafa;
+        }
+
+        textarea {
+            resize: vertical;
+        }
+
+        .optional {
+            font-weight: normal;
+            font-size: 13px;
+            color: #888;
+        }
+
+        .submit-btn {
+            background-color: #6a1b9a;
+            color: white;
+            border: none;
+            font-size: clamp(0.95rem, 2.5vw, 1rem);
+            padding: clamp(12px, 3vw, 15px);
+            border-radius: 12px;
+            margin-top: 25px;
+            width: 100%;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .submit-btn:hover {
+            background-color: #4a148c;
+        }
+    </style>
+</head>
+
+<body>
+    {% extends "base.html" %}
+
+    {% block title %}Send Feedback | StudySpark{% endblock %}
+
+    {% block content %}
+    <div class="container">
+        <h2>💬 Send Us Feedback</h2>
+        <form action="/submit_feedback" method="POST">
+            <label>Name <span class="optional">(Optional)</span></label>
+            <input type="text" name="name" placeholder="Leave blank for anonymous">
+
+            <label>Email <span class="optional">(Optional)</span></label>
+            <input type="email" name="email" placeholder="We'll reach out if needed">
+
+            <label>Feedback Type</label>
+            <select name="type" required>
+                <option value="">--Select Type--</option>
+                <option value="General">General</option>
+                <option value="Bug Report">Bug Report</option>
+                <option value="UI Complaint">UI Complaint</option>
+                <option value="Compliment">Compliment</option>
+                <option value="Other">Other</option>
+            </select>
+
+            <label>Your Feedback</label>
+            <textarea name="message" rows="5" required
+                placeholder="Be brutally honest or sweetly kind. We can take it. 💌"></textarea>
+
+            <label>Your Mood <span class="optional">(Optional)</span></label>
+            <select name="mood">
+                <option value="">--Pick a Mood--</option>
+                <option value="😡 Frustrated">😡 Frustrated</option>
+                <option value="😐 Neutral">😐 Neutral</option>
+                <option value="🙂 Content">🙂 Content</option>
+                <option value="😍 Love It">😍 Love It</option>
+            </select>
+
+            <button type="submit" class="submit-btn">📨 Send Your Truth</button>
+        </form>
+    </div>
+    {% endblock %}
+</body>
+
+</html>

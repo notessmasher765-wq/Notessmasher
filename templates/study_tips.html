@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}Study Tips | StudySpark{% endblock %}
+
+{% block content %}
+
+<!-- Study Tips Section - Add this to your study_tips.html -->
+<section style="background-color: #f3e5f5; padding: 60px 20px;">
+    <div style="max-width: 1000px; margin: auto; text-align: center;">
+      <h2 style="color: #6a1b9a; font-size: 2.5em; margin-bottom: 10px;">One Step Ahead 🚀</h2>
+      <p style="font-size: 1.1em; color: #4a148c; margin-bottom: 40px;">
+        Study tips from students, for students – because every tip brings you one step closer to success!
+      </p>
+  
+      <!-- Sample Study Tips Cards -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+        <a href="/pomodoro" style="text-decoration: none; color: inherit;">
+        <div style="background: white; padding: 20px; border-radius: 16px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+          <h4 style="color: #6a1b9a;">🎧 Try the Pomodoro Method</h4>
+          
+          <p style="color: #333;">Study for 25 mins, take a 5-min break. It really improves focus!</p>
+        </div> </a>
+
+        <div style="background: white; padding: 20px; border-radius: 16px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+          <h4 style="color: #6a1b9a;">
+            <a href="{{ url_for('routes.sticky_notes') }}" style="color: #6a1b9a; text-decoration: none;">📌 Use Sticky Notes </a></h4>
+          <p style="color: #333;">Write key points and stick them where you’ll see them often.</p>
+      
+        </div>
+        
+
+        
+        <div style="background: white; padding: 20px; border-radius: 16px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+          <h4 style="color: #6a1b9a;">
+            <a href="{{ url_for('routes.explain') }}" style="color: #6a1b9a; text-decoration: none;">📚 Explain to Learn</a></h4>
+          <p style="color: #333;">Teach someone else. If you can explain it simply, you understand it well.</p>
+        </div>
+      </div>
+  
+      <!-- Share Tip Button -->
+      <div style="margin-top: 40px;">
+        <a href="{{ url_for('routes.share_tips') }}" style="background-color: #6a1b9a; color: white; padding: 12px 24px; border-radius: 12px; text-decoration: none; font-weight: bold; font-size: 16px;">
+          ✍️ Share Your Study Tip
+        </a>
+      </div>
+    </div>
+  </section>
+  <!-- User-Submitted Study Tips -->
+<section style="background-color: #ede7f6; padding: 50px 20px; margin-top: 60px;">
+  <div style="max-width: 1000px; margin: auto;">
+    <h2 style="color: #4a148c; text-align: center; font-size: 2em; margin-bottom: 30px;">
+      💡 Tips Shared by Users
+    </h2>
+
+    {% if tips %}
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+      {% for tip in tips %}
+      <div style="background: white; padding: 20px; border-radius: 16px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+        <p style="color: #333; font-size: 1em;">{{ tip.tip_text }}</p>
+        <p style="color: #6a1b9a; font-size: 0.9em; margin-top: 10px;">— {{ tip.submitted_by }}</p>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p style="text-align: center; color: #6a1b9a;">No tips shared yet. Be the first one!</p>
+    {% endif %}
+  </div>
+</section>
+    {% endblock %}
+
+  

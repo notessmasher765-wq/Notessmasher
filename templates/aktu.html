@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}AKTU PYQs & Notes | StudySpark{% endblock %}
+
+{% block head %}
+<!-- SEO Meta Tags -->
+<meta name="description" content="Access the latest AKTU previous year papers and study notes daily on Notessmasher. Search, filter, and download PDFs easily.">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto px-6 py-10">
+    <!-- Page Heading -->
+    <div class="text-center mb-10">
+        <h1 class="text-3xl md:text-4xl font-extrabold text-purple-900 tracking-wide">
+            📚 AKTU Resources
+        </h1>
+        <p class="text-gray-600 mt-2">Find previous year papers & study materials with ease</p>
+    </div>
+
+    <!-- Filters Card -->
+    <div class="bg-white p-6 rounded-2xl shadow-md flex flex-wrap justify-center gap-4 mb-10">
+        <input type="text" id="search" placeholder="🔍 Search by title or subject"
+               class="px-4 py-2 w-64 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400" aria-label="Search AKTU notes">
+
+        <select id="year-filter"
+                class="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400" aria-label="Filter by year">
+            <option value="1st Year" {% if selected_year=='1st Year' %}selected{% endif %}>1st Year</option>
+            <option value="2nd Year" {% if selected_year=='2nd Year' %}selected{% endif %}>2nd Year</option>
+            <option value="3rd Year" {% if selected_year=='3rd Year' %}selected{% endif %}>3rd Year</option>
+            <option value="4th Year" {% if selected_year=='4th Year' %}selected{% endif %}>4th Year</option>
+        </select>
+
+        <select id="session-filter"
+                class="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400" aria-label="Filter by session">
+            {% for session in sessions %}
+                <option value="{{ session }}" {% if session==selected_session %}selected{% endif %}>{{ session }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <!-- PDF / Note List -->
+    <div id="aktu-list" class="grid md:grid-cols-2 gap-6">
+        {% if aktu %}
+            {% for p in aktu %}
+            <div class="flex items-center gap-4 bg-purple-50 p-5 rounded-xl shadow hover:shadow-lg transition transform hover:-translate-y-1">
+                <img src="{{ p.thumbnail_url or url_for('static', filename='pdf-icon.png') }}" 
+                     width="60" class="drop-shadow rounded-lg" 
+                     alt="{{ p.title }} thumbnail">
+
+                <div class="flex flex-col">
+                    <a href="{{ p.file_url }}" target="_blank" download
+                       class="text-lg font-semibold text-purple-800 hover:underline">
+                        {{ p.title }}
+                    </a>
+                    <span class="text-sm text-gray-500">📖 {{ p.subject }} | 🗓 {{ p.session }}</span>
+                    <span class="text-xs text-gray-400">Pages: {{ p.pages or "N/A" }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p class="text-center text-gray-500 col-span-2">🚫 No PDFs found for this selection.</p>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+document.getElementById('year-filter').addEventListener('change', function(){
+    let year = this.value;
+    let session = document.getElementById('session-filter').value;
+    window.location.href = `/aktu?year=${year}&session=${session}`;
+});
+
+document.getElementById('session-filter').addEventListener('change', function(){
+    let session = this.value;
+    let year = document.getElementById('year-filter').value;
+    window.location.href = `/aktu?year=${year}&session=${session}`;
+});
+
+// Search filter
+document.getElementById('search').addEventListener('keyup', function(){
+    let filter = this.value.toLowerCase();
+    document.querySelectorAll('#aktu-list > div').forEach(function(item){
+        let text = item.innerText.toLowerCase();
+        item.style.display = text.includes(filter) ? '' : 'none';
+    });
+});
+</script>
+{% endblock %}

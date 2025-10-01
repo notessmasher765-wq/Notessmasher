@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container" style="max-width: 700px; margin: 50px auto; padding: 20px; background: #f3e5f5; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+    <h2 style="text-align:center; color:#6a1b9a;">Edit Note</h2>
+    <form method="POST" action="{{ url_for('routes.edit_note', note_id=note.id) }}">
+        
+        <!-- Title -->
+        <div class="form-group" style="margin-bottom:15px;">
+            <label for="title" style="font-weight:600; color:#4a148c;">Title</label>
+            <input type="text" id="title" name="title" class="form-control" value="{{ note.title }}" required
+                   style="width:100%; padding:10px; border-radius:5px; border:1px solid #ce93d8;">
+        </div>
+
+        <!-- Course -->
+        <div class="form-group" style="margin-bottom:15px;">
+            <label for="course" style="font-weight:600; color:#4a148c;">Course</label>
+            <input type="text" id="course" name="course" class="form-control" value="{{ note.course or '' }}"
+                   style="width:100%; padding:10px; border-radius:5px; border:1px solid #ce93d8;">
+        </div>
+
+        <!-- Subject -->
+        <div class="form-group" style="margin-bottom:15px;">
+            <label for="subject" style="font-weight:600; color:#4a148c;">Subject</label>
+            <input type="text" id="subject" name="subject" class="form-control" value="{{ note.subject or '' }}"
+                   style="width:100%; padding:10px; border-radius:5px; border:1px solid #ce93d8;">
+        </div>
+
+        <!-- Session -->
+        <div class="form-group" style="margin-bottom:15px;">
+            <label for="session" style="font-weight:600; color:#4a148c;">Session</label>
+            <input type="text" id="session" name="session" class="form-control" value="{{ note.session or '' }}"
+                   style="width:100%; padding:10px; border-radius:5px; border:1px solid #ce93d8;">
+        </div>
+
+        <!-- Note Type -->
+        <div class="form-group" style="margin-bottom:15px;">
+            <label for="note_type" style="font-weight:600; color:#4a148c;">Note Type</label>
+            <input type="text" id="note_type" name="note_type" class="form-control" value="{{ note.note_type or '' }}"
+                   style="width:100%; padding:10px; border-radius:5px; border:1px solid #ce93d8;">
+        </div>
+
+        <!-- Typed Content -->
+        <div class="form-group" style="margin-bottom:15px;">
+            <label for="typed_content" style="font-weight:600; color:#4a148c;">Content</label>
+            <textarea id="typed_content" name="typed_content" class="form-control" rows="6" required
+                      style="width:100%; padding:10px; border-radius:5px; border:1px solid #ce93d8;">{{ note.typed_content }}</textarea>
+        </div>
+
+        <!-- Public/Private -->
+        <div class="form-group" style="margin-bottom:20px;">
+            <label style="font-weight:600; color:#4a148c;">Visibility</label><br>
+            <input type="checkbox" id="is_public" name="is_public" {% if note.is_public %}checked{% endif %}>
+            <label for="is_public">Make this note public</label>
+        </div>
+
+        <!-- Buttons -->
+        <div style="text-align:center; margin-top:20px;">
+            <button type="submit" style="background:#6a1b9a; color:white; padding:10px 25px; border:none; border-radius:5px; cursor:pointer;">
+                Update Note
+            </button>
+            <a href="{{ url_for('routes.my_notes') }}" 
+               style="margin-left:10px; background:#ce93d8; color:white; padding:10px 20px; border-radius:5px; text-decoration:none;">
+               Cancel
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}
