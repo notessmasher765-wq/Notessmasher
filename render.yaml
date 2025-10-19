@@ -1,0 +1,11 @@
+# render.yaml
+services:
+  - type: web
+    name: notessmasher
+    env: python
+    plan: free
+    buildCommand: bash render-build.sh
+    startCommand: gunicorn app:app
+    envVars:
+      - key: FLASK_ENV
+        value: production
