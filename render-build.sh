@@ -3,9 +3,7 @@ set -e
 
 echo "Starting Render build..."
 
-# Install system dependencies
-sudo apt-get update -y
-sudo apt-get install -y poppler-utils
+
 
 # Upgrade pip
 python3 -m pip install --upgrade pip
