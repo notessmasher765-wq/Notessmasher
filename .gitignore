@@ -7,5 +7,9 @@ venv/
 env/
 .vscode/
 .idea/
-.requirements.txt
-.DS_Store       
+.DS_Store     
+*.log
+*.sqlite3
+static/upload/
+*.swp
+Thumbs.db  
