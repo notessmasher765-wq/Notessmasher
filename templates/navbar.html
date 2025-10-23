@@ -30,7 +30,7 @@
         transition: all 0.3s ease-in-out;
     }
 
-     nav ul {
+    nav ul {
         list-style: none;
         display: flex;
         gap: 2rem;
@@ -171,9 +171,7 @@
         }
     }
 </style>
-
 <script>
-   
 // ====== Hamburger Menu Toggle ======
 function toggleMenu() {
     const navLinks = document.getElementById("navLinks");
@@ -182,36 +180,34 @@ function toggleMenu() {
     menuIcon.textContent = navLinks.classList.contains("show") ? "✖" : "☰";
 }
 
-// ====== Mobile Dropdown with Sticky Timeout ======
-document.querySelectorAll('#navLinks li > a').forEach(link => {
+// ====== Mobile Dropdown Toggle ======
+const navLinks = document.querySelectorAll('#navLinks li > a');
+
+navLinks.forEach(link => {
     link.addEventListener('click', function(e) {
         const parentLi = e.target.closest("li");
         const dropdown = parentLi.querySelector(".dropdown");
 
-        // If no dropdown, ignore
-        if(!dropdown) return;
+        if (!dropdown) return; // Ignore links with no dropdown
 
         e.preventDefault(); // Prevent default link action
 
-        // Remove 'active' from other dropdowns
+        // Close other dropdowns
         document.querySelectorAll('#navLinks li.active').forEach(li => {
-            if(li !== parentLi) {
-                li.classList.remove('active');
-                if(li.hideTimeout) clearTimeout(li.hideTimeout);
-            }
+            if (li !== parentLi) li.classList.remove('active');
         });
 
-        // Show this dropdown
-        parentLi.classList.add("active");
-
-        // Clear previous timeout if exists
-        if(parentLi.hideTimeout) clearTimeout(parentLi.hideTimeout);
-
-        // Hide dropdown after 5 seconds
-        parentLi.hideTimeout = setTimeout(() => {
-            parentLi.classList.remove("active");
-        }, 5000); // adjust 5000ms = 5s
+        // Toggle this dropdown
+        parentLi.classList.toggle('active');
     });
+});
+
+// ====== Close dropdowns when clicking outside ======
+document.addEventListener('click', function(e) {
+    const nav = document.querySelector('nav');
+    if (!nav.contains(e.target)) {
+        document.querySelectorAll('#navLinks li.active').forEach(li => li.classList.remove('active'));
+    }
 });
 
 // ====== Search Logic ======
@@ -272,9 +268,8 @@ if (searchInput) {
         }
     });
 }
-
-
 </script>
+
 
 
 
@@ -291,7 +286,7 @@ if (searchInput) {
         <li><a href="{{ url_for('routes.upload') }}">Upload Notes</a></li>
 
         <li>
-            <a href="#" onclick="toggleDropdown(event)">Notes ▼</a>
+            <a href="#">Notes ▼</a>
             <div class="dropdown">
                 <a href="{{ url_for('routes.my_notes') }}">My Notes</a>
                 <a href="{{ url_for('routes.view_notes') }}">View Notes</a>
@@ -303,7 +298,7 @@ if (searchInput) {
         <li><a href="{{ url_for('routes.auth') }}">Login / Register</a></li>
 
         <li>
-            <a href="#" onclick="toggleDropdown(event)">Contact ▼</a>
+            <a href="#">Contact ▼</a>
             <div class="dropdown">
                 <a href="{{ url_for('routes.contact') }}">Collaboration</a>
                 <a href="{{ url_for('routes.about_us') }}">About Us</a>
@@ -318,11 +313,9 @@ if (searchInput) {
 
         <li>
             <a href="{{ url_for('routes.profile') }}" title="My Profile">
-                <img src="{{ url_for('static', filename='images/image.png') }}" alt="Profile Icon"
-                    width="35" height="35" style="border-radius: 50%; vertical-align: middle;">
+                <img src="{{ url_for('static', filename='images/image.png') }}" alt="Profile Icon" width="35"
+                    height="35" style="border-radius: 50%; vertical-align: middle;">
             </a>
         </li>
     </ul>
 </nav>
-
-
