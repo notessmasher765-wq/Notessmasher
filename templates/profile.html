@@ -1,148 +1,131 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+{% block title %}My Profile | StudySpark{% endblock %}
 
-  <title>My Profile | StudySpark</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
-  <style>
-    body {
-      font-family: 'Poppins', sans-serif;
-      background-color: #f3e5f5;
-      color: #4a148c;
-      margin: 0;
-      padding: clamp(10px, 5vw, 40px);
-    }
+{% block content %}
+<style>
+  body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #f3e5f5;
+    color: #4a148c;
+    margin: 0;
+    padding: clamp(10px, 5vw, 40px);
+  }
 
+  .profile-wrapper {
+    max-width: 750px;
+    margin: auto;
+    background-color: #ffffff;
+    padding: clamp(15px, 4vw, 40px);
+    border-radius: 20px;
+    box-shadow: 0 0 20px rgba(106, 27, 154, 0.15);
+  }
+
+  .profile-wrapper h2 {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #6a1b9a;
+  }
+
+  .info-box {
+    margin-bottom: 25px;
+  }
+
+  .info-label {
+    font-weight: bold;
+    margin-bottom: 8px;
+    display: block;
+    color: #6a1b9a;
+  }
+
+  input[type="text"],
+  input[type="email"] {
+    width: 100%;
+    padding: clamp(10px, 2.5vw, 12px);
+    border-radius: 10px;
+    border: 1px solid #ce93d8;
+    background-color: #fdf9ff;
+  }
+
+  button {
+    width: 100%;
+    background-color: #6a1b9a;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 12px;
+    font-weight: bold;
+    margin-top: 20px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+
+  button:hover {
+    background-color: #4a148c;
+  }
+
+  .stats-box {
+    margin-top: 40px;
+    background-color: #f8eafa;
+    padding: clamp(12px, 3vw, 20px);
+    border-radius: 15px;
+  }
+
+  .stats-box h4 {
+    margin: 0 0 15px 0;
+    color: #6a1b9a;
+  }
+
+  .stat-item {
+    margin-bottom: 10px;
+  }
+
+  .stat-label {
+    font-weight: bold;
+    color: #4a148c;
+  }
+
+  @media (max-width: 600px) {
     .profile-wrapper {
-      max-width: 750px;
-      margin: auto;
-      background-color: #ffffff;
-      padding: clamp(15px, 4vw, 40px);
-      border-radius: 20px;
-      box-shadow: 0 0 20px rgba(106, 27, 154, 0.15);
+      padding: 20px;
     }
+  }
+</style>
 
-    .profile-wrapper h2 {
-      text-align: center;
-      margin-bottom: 30px;
-      color: #6a1b9a;
-    }
+<div class="profile-wrapper">
+  <h2>👤 My Profile</h2>
 
-    .info-box {
-      margin-bottom: 25px;
-    }
-
-    .info-label {
-      font-weight: bold;
-      margin-bottom: 8px;
-      display: block;
-      color: #6a1b9a;
-    }
-
-    input[type="text"],
-    input[type="email"] {
-      width: 100%;
-      padding: clamp(10px, 2.5vw, 12px);
-      border-radius: 10px;
-      border: 1px solid #ce93d8;
-      background-color: #fdf9ff;
-    }
-
-    button {
-      width: 100%;
-      background-color: #6a1b9a;
-      color: white;
-      border: none;
-      padding: 12px;
-      border-radius: 12px;
-      font-weight: bold;
-      margin-top: 20px;
-      cursor: pointer;
-      transition: background 0.3s ease;
-    }
-
-    button:hover {
-      background-color: #4a148c;
-    }
-
-    .stats-box {
-      margin-top: 40px;
-      background-color: #f8eafa;
-      padding: clamp(12px, 3vw, 20px);
-      border-radius: 15px;
-    }
-
-    .stats-box h4 {
-      margin: 0 0 15px 0;
-      color: #6a1b9a;
-    }
-
-    .stat-item {
-      margin-bottom: 10px;
-    }
-
-    .stat-label {
-      font-weight: bold;
-      color: #4a148c;
-    }
-
-    @media (max-width: 600px) {
-      .profile-wrapper {
-        padding: 20px;
-      }
-    }
-  </style>
-</head>
-
-<body>
-
-  {% extends "base.html" %}
-
-  {% block title %}My Profile | StudySpark{% endblock %}
-
-  {% block content %}
-  <div class="profile-wrapper">
-    <h2>👤 My Profile</h2>
-
-    <!-- 🔥 Profile Picture Section -->
-    <div style="text-align: center; margin-bottom: 20px;">
-      <img src="{{ url_for('static', filename='images/image.png') }}" alt="Profile Picture" width="100" height="100"
-        style="border-radius: 50%; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">
-    </div>
-
-
-    <form method="POST">
-      <div class="info-box">
-        <label class="info-label">Name</label>
-        <input type="text" name="name" value="{{ user.name }}" required>
-      </div>
-
-      <div class="info-box">
-        <label class="info-label">Email</label>
-        <input type="email" name="email" value="{{ user.email }}" required>
-      </div>
-
-      <div class="info-box">
-        <label class="info-label">Course</label>
-        <input type="text" name="course" value="{{ user.course }}">
-      </div>
-
-      <button type="submit">💾 Update Profile</button>
-    </form>
-
-    <div class="stats-box">
-      <h4>📊 Account Activity</h4>
-      <div class="stat-item">
-        <span class="stat-label">Notes Uploaded:</span> {{ uploaded_notes_count }}
-      </div>
-      <!-- Later we can add Saved/Viewed stats here too -->
-    </div>
+  <!-- 🔥 Profile Picture Section -->
+  <div style="text-align: center; margin-bottom: 20px;">
+    <img src="{{ url_for('static', filename='images/image.png') }}" alt="Profile Picture" width="100" height="100"
+      style="border-radius: 50%; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">
   </div>
-  {% endblock %}
 
-</body>
+  <form method="POST">
+    <div class="info-box">
+      <label class="info-label">Name</label>
+      <input type="text" name="name" value="{{ user.name }}" required>
+    </div>
 
-</html>
+    <div class="info-box">
+      <label class="info-label">Email</label>
+      <input type="email" name="email" value="{{ user.email }}" required>
+    </div>
+
+    <div class="info-box">
+      <label class="info-label">Course</label>
+      <input type="text" name="course" value="{{ user.course }}">
+    </div>
+
+    <button type="submit">💾 Update Profile</button>
+  </form>
+
+  <div class="stats-box">
+    <h4>📊 Account Activity</h4>
+    <div class="stat-item">
+      <span class="stat-label">Notes Uploaded:</span> {{ uploaded_notes_count }}
+    </div>
+    <!-- Later we can add Saved/Viewed stats here too -->
+  </div>
+</div>
+{% endblock %}
