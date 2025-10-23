@@ -10,255 +10,233 @@
   <meta name="description"
     content="Join StudySpark to upload, view, and share study notes. Login or register to access your dashboard and AKTU resources daily.">
 
-<style>
-body {
-  font-family: 'Poppins', sans-serif;
-  background: linear-gradient(135deg, #f3e5f5, #e1bee7);
-  margin: 0;
-  padding: 0;
-}
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #f3e5f5, #e1bee7);
+      margin: 0;
+      padding: 0;
+    }
 
-.main-container {
-  display: flex;
-  flex-direction: row;
-  background: white;
-  border-radius: 20px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-  overflow: hidden;
-  max-width: 900px;
-  width: 90%;
-  min-height: 60vh; /* added min-height for balance */
-  margin: 40px auto;
-}
+    .main-container {
+      display: flex;
+      flex-direction: row;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+      overflow: hidden;
+      max-width: 900px;
+      width: 90%;
+      min-height: auto;
+      margin: 40px auto;
+    }
 
-.illustration {
-  flex: 1;
-  background-color: #f3e5f5;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  padding: clamp(10px, 4vw, 20px);
-}
+    .illustration {
+      flex: 1;
+      background-color: #f3e5f5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      padding: clamp(10px, 4vw, 20px);
+    }
 
-.illustration img {
-  max-width: 80%;
-  max-height: 220px; /* limit image height */
-  height: auto;
-  border-radius: 12px;
-}
+    .illustration img {
+      max-width: 80%;
+      height: auto;
+      border-radius: 12px;
+    }
 
-.illustration h2 {
-  margin-top: 20px;
-  color: #6a1b9a;
-  font-weight: 600;
-  text-align: center;
-}
+    .illustration h2 {
+      margin-top: 20px;
+      color: #6a1b9a;
+      font-weight: 600;
+      text-align: center;
+    }
 
-.container {
-  flex: 1;
-  padding: clamp(15px, 5vw, 30px);
-  background: #faf5fb;
-}
+    .container {
+      flex: 1;
+      padding: clamp(15px, 5vw, 30px);
+      background: #faf5fb;
+    }
 
-.toggle-buttons {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 20px;
-  border-radius: 12px;
-  overflow: hidden;
-}
+    .toggle-buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      border-radius: 12px;
+      overflow: hidden;
+    }
 
-.toggle-buttons button {
-  flex: 1;
-  padding: 12px;
-  border: none;
-  cursor: pointer;
-  font-weight: bold;
-  background-color: #d1c4e9;
-  color: #4a148c;
-  transition: 0.3s;
-}
+    .toggle-buttons button {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+      background-color: #d1c4e9;
+      color: #4a148c;
+      transition: 0.3s;
+    }
 
-.toggle-buttons button.active {
-  background-color: #7e57c2;
-  color: white;
-}
+    .toggle-buttons button.active {
+      background-color: #7e57c2;
+      color: white;
+    }
 
-.form-section {
-  display: none;
-  animation: fadeIn 0.4s ease-in-out;
-}
+    .form-section {
+      display: none;
+      animation: fadeIn 0.4s ease-in-out;
+    }
 
-.form-section.active {
-  display: block;
-}
+    .form-section.active {
+      display: block;
+    }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
 
-label {
-  font-weight: 500;
-  margin-top: 12px;
-  display: block;
-  color: #4a148c;
-}
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
 
-input,
-select {
-  width: 100%;
-  padding: 12px;
-  margin-top: 4px;
-  border: 1px solid #d1c4e9;
-  border-radius: 10px;
-  margin-bottom: 12px;
-  outline: none;
-}
+    label {
+      font-weight: 500;
+      margin-top: 12px;
+      display: block;
+      color: #4a148c;
+    }
 
-input:focus,
-select:focus {
-  border-color: #7e57c2;
-  box-shadow: 0 0 5px rgba(126, 87, 194, 0.4);
-}
+    input,
+    select {
+      width: 100%;
+      padding: 12px;
+      margin-top: 4px;
+      border: 1px solid #d1c4e9;
+      border-radius: 10px;
+      margin-bottom: 12px;
+      outline: none;
+    }
 
-.form-btn,
-.google-btn {
-  width: 100%;
-  font-size: 16px;
-  border: none;
-  border-radius: 12px;
-  cursor: pointer;
-  padding: 12px;
-  margin-top: 10px;
-}
+    input:focus,
+    select:focus {
+      border-color: #7e57c2;
+      box-shadow: 0 0 5px rgba(126, 87, 194, 0.4);
+    }
 
-.form-btn {
-  background-color: #7e57c2;
-  color: white;
-}
+    .form-btn,
+    .google-btn {
+      width: 100%;
+      font-size: 16px;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      padding: 12px;
+      margin-top: 10px;
+    }
 
-.form-btn:hover {
-  background-color: #6a1b9a;
-}
+    .form-btn {
+      background-color: #7e57c2;
+      color: white;
+    }
 
-.google-btn {
-  background-color: #db4437;
-  color: white;
-  text-align: center;
-  display: block;
-}
+    .form-btn:hover {
+      background-color: #6a1b9a;
+    }
 
-.google-btn:hover {
-  background-color: #c1351d;
-}
+    .google-btn {
+      background-color: #db4437;
+      color: white;
+      text-align: center;
+      display: block;
+    }
 
-.checkbox-group {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 10px 0;
-}
+    .google-btn:hover {
+      background-color: #c1351d;
+    }
 
-.checkbox-group label {
-  margin: 0;
-  line-height: 1;
-  font-weight: normal;
-  color: #4a148c;
-}
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 10px 0;
+    }
 
-.checkbox-group a {
-  font-weight: bold;
-  color: #6a1b9a;
-}
+    .checkbox-group label {
+      margin: 0;
+      line-height: 1;
+      font-weight: normal;
+      color: #4a148c;
+    }
 
-.flash {
-  padding: 12px 20px;
-  margin: 15px auto;
-  width: 90%;
-  border-radius: 8px;
-  font-weight: bold;
-  text-align: center;
-}
+    .checkbox-group a {
+      font-weight: bold;
+      color: #6a1b9a;
+    }
 
-.flash.success {
-  background-color: #c8e6c9;
-  color: #256029;
-}
+    .flash {
+      padding: 12px 20px;
+      margin: 15px auto;
+      width: 90%;
+      border-radius: 8px;
+      font-weight: bold;
+      text-align: center;
+    }
 
-.flash.danger {
-  background-color: #ffcdd2;
-  color: #b71c1c;
-}
+    .flash.success {
+      background-color: #c8e6c9;
+      color: #256029;
+    }
 
-/* Tablets */
-@media (max-width: 768px) {
-  .main-container {
-    flex-direction: column;
-    width: 95%;
-    min-height: auto;
-    margin: 20px auto;
-  }
+    .flash.danger {
+      background-color: #ffcdd2;
+      color: #b71c1c;
+    }
 
-  .illustration {
-  flex: 1;
-  background-color: #f3e5f5;
-  display: flex;
-  align-items: center;
-  justify-content: flex-start; /* push content slightly up */
-  flex-direction: column;
-  padding: clamp(10px, 4vw, 20px);
-}
+    @media (max-width: 768px) {
+      .main-container {
+        flex-direction: column;
+        width: 95%;
+        margin: 20px auto;
+      }
 
-.illustration img {
-  max-width: 80%;
-  max-height: 60vh; /* limit height so form shows sooner */
-  height: auto;
-  border-radius: 12px;
-}
+      .illustration {
+        order: 1;
+        padding: 20px;
+      }
 
+      .container {
+        order: 2;
+        padding: 20px;
+      }
+    }
 
-  .container {
-    order: 2;
-    padding: 20px;
-  }
-}
+    @media (max-width: 480px) {
+      .illustration img {
+        max-width: 100%;
+      }
 
-/* Phones */
-@media (max-width: 480px) {
-  .main-container {
-    min-height: 100vh; /* fill full viewport */
-  }
+      .toggle-buttons button {
+        font-size: 14px;
+        padding: 10px;
+      }
 
-  .illustration img {
-    max-height: 120px; /* shrink more for phones */
-    width: auto;
-  }
+      .form-btn,
+      .google-btn {
+        font-size: 14px;
+        padding: 10px;
+      }
 
-  .toggle-buttons button {
-    font-size: 14px;
-    padding: 10px;
-  }
-
-  .form-btn,
-  .google-btn {
-    font-size: 14px;
-    padding: 10px;
-  }
-
-  label {
-    font-size: 14px;
-  }
-}
-</style>
-
+      label {
+        font-size: 14px;
+      }
+    }
+  </style>
 
   <script>
     // Show login or register
@@ -422,4 +400,5 @@ select:focus {
 </body>
 
 </html>
+
 
