@@ -30,21 +30,27 @@
         transition: all 0.3s ease-in-out;
     }
 
-    #navLinks li {
+     nav ul {
+        list-style: none;
+        display: flex;
+        gap: 2rem;
+        align-items: center;
+    }
+
+    nav ul li {
         position: relative;
     }
 
-    #navLinks li a {
+    nav ul li a {
         text-decoration: none;
         color: #333;
         font-weight: 500;
         padding: 8px 12px;
-        transition: 0.25s ease;
+        transition: 0.3s;
         border-radius: 6px;
-        display: inline-block;
     }
 
-    #navLinks li a:hover {
+    nav ul li a:hover {
         color: #6a1b9a;
         background: #f3e5f5;
     }
@@ -167,86 +173,107 @@
 </style>
 
 <script>
-    // Toggle mobile menu + hamburger icon
-    function toggleMenu() {
-        const navLinks = document.getElementById("navLinks");
-        const menuIcon = document.querySelector(".menu-icon");
+   
+// ====== Hamburger Menu Toggle ======
+function toggleMenu() {
+    const navLinks = document.getElementById("navLinks");
+    const menuIcon = document.querySelector(".menu-icon");
+    navLinks.classList.toggle("show");
+    menuIcon.textContent = navLinks.classList.contains("show") ? "✖" : "☰";
+}
 
-        navLinks.classList.toggle("show");
-
-        // Toggle icon between ☰ and ✖
-        if (navLinks.classList.contains("show")) {
-            menuIcon.textContent = "✖";
-        } else {
-            menuIcon.textContent = "☰";
-        }
-    }
-
-    // Dropdown toggle for mobile
-    function toggleDropdown(e) {
-        e.preventDefault();
+// ====== Mobile Dropdown with Sticky Timeout ======
+document.querySelectorAll('#navLinks li > a').forEach(link => {
+    link.addEventListener('click', function(e) {
         const parentLi = e.target.closest("li");
-        parentLi.classList.toggle("active");
-    }
+        const dropdown = parentLi.querySelector(".dropdown");
 
-    // Search logic
-    const searchInput = document.getElementById('noteSearch');
-    const resultsDiv = document.getElementById('searchResults');
+        // If no dropdown, ignore
+        if(!dropdown) return;
 
-    if (searchInput) {
-        searchInput.addEventListener('input', () => {
-            const query = searchInput.value.trim();
-            resultsDiv.innerHTML = '';
+        e.preventDefault(); // Prevent default link action
 
-            if (query) {
-                resultsDiv.style.display = 'block';
-                resultsDiv.innerHTML = '<div style="padding:8px; color:#666;">Searching...</div>';
+        // Remove 'active' from other dropdowns
+        document.querySelectorAll('#navLinks li.active').forEach(li => {
+            if(li !== parentLi) {
+                li.classList.remove('active');
+                if(li.hideTimeout) clearTimeout(li.hideTimeout);
+            }
+        });
 
-                fetch(`/search_notes?q=${encodeURIComponent(query)}`)
-                    .then(res => res.json())
-                    .then(data => {
-                        resultsDiv.innerHTML = '';
-                        if (data.length === 0) {
-                            resultsDiv.innerHTML = '<div style="padding:8px; color:#666;">No results found</div>';
-                        } else {
-                            data.forEach(n => {
-                                const div = document.createElement('div');
-                                div.textContent = n.title;
-                                div.style.padding = '8px';
-                                div.style.cursor = 'pointer';
-                                div.addEventListener('click', () => {
-                                    window.location.href = `/view_notes?search=${encodeURIComponent(n.title)}`;
-                                });
-                                resultsDiv.appendChild(div);
+        // Show this dropdown
+        parentLi.classList.add("active");
+
+        // Clear previous timeout if exists
+        if(parentLi.hideTimeout) clearTimeout(parentLi.hideTimeout);
+
+        // Hide dropdown after 5 seconds
+        parentLi.hideTimeout = setTimeout(() => {
+            parentLi.classList.remove("active");
+        }, 5000); // adjust 5000ms = 5s
+    });
+});
+
+// ====== Search Logic ======
+const searchInput = document.getElementById('noteSearch');
+const resultsDiv = document.getElementById('searchResults');
+
+if (searchInput) {
+    searchInput.addEventListener('input', () => {
+        const query = searchInput.value.trim();
+        resultsDiv.innerHTML = '';
+
+        if (query) {
+            resultsDiv.style.display = 'block';
+            resultsDiv.innerHTML = '<div style="padding:8px; color:#666;">Searching...</div>';
+
+            fetch(`/search_notes?q=${encodeURIComponent(query)}`)
+                .then(res => res.json())
+                .then(data => {
+                    resultsDiv.innerHTML = '';
+                    if (data.length === 0) {
+                        resultsDiv.innerHTML = '<div style="padding:8px; color:#666;">No results found</div>';
+                    } else {
+                        data.forEach(n => {
+                            const div = document.createElement('div');
+                            div.textContent = n.title;
+                            div.style.padding = '8px';
+                            div.style.cursor = 'pointer';
+                            div.addEventListener('click', () => {
+                                window.location.href = `/view_notes?search=${encodeURIComponent(n.title)}`;
                             });
-                        }
-                    }).catch(err => {
-                        console.error(err);
-                        resultsDiv.innerHTML = '<div style="padding:8px; color:red;">Error fetching results</div>';
-                    });
-            } else {
-                resultsDiv.style.display = 'none';
-            }
-        });
+                            resultsDiv.appendChild(div);
+                        });
+                    }
+                }).catch(err => {
+                    console.error(err);
+                    resultsDiv.innerHTML = '<div style="padding:8px; color:red;">Error fetching results</div>';
+                });
+        } else {
+            resultsDiv.style.display = 'none';
+        }
+    });
 
-        // Redirect on Enter key
-        searchInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                const query = searchInput.value.trim();
-                if (query) {
-                    window.location.href = `/view_notes?search=${encodeURIComponent(query)}`;
-                }
+    // Redirect on Enter
+    searchInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            const query = searchInput.value.trim();
+            if (query) {
+                window.location.href = `/view_notes?search=${encodeURIComponent(query)}`;
             }
-        });
+        }
+    });
 
-        // Hide results when clicking outside
-        document.addEventListener('click', (e) => {
-            if (!searchInput.contains(e.target) && !resultsDiv.contains(e.target)) {
-                resultsDiv.style.display = 'none';
-            }
-        });
-    }
+    // Hide results when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!searchInput.contains(e.target) && !resultsDiv.contains(e.target)) {
+            resultsDiv.style.display = 'none';
+        }
+    });
+}
+
+
 </script>
 
 
@@ -297,4 +324,5 @@
         </li>
     </ul>
 </nav>
+
 
