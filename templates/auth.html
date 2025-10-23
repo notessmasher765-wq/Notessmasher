@@ -208,13 +208,22 @@ select:focus {
   }
 
   .illustration {
-    order: 1;
-    padding: 20px;
-  }
+  flex: 1;
+  background-color: #f3e5f5;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start; /* push content slightly up */
+  flex-direction: column;
+  padding: clamp(10px, 4vw, 20px);
+}
 
-  .illustration img {
-    max-height: 180px; /* shrink image */
-  }
+.illustration img {
+  max-width: 80%;
+  max-height: 60vh; /* limit height so form shows sooner */
+  height: auto;
+  border-radius: 12px;
+}
+
 
   .container {
     order: 2;
