@@ -902,6 +902,6 @@ def sitemap():
     return xml, 200, {"Content-Type": "application/xml"}
 
 
-@app.route("/googlef76d8f642f530023.html")
+@routes.route("/googlef76d8f642f530023.html")
 def google_verification():
     return send_from_directory(os.path.join(app.root_path, 'static'), 'googlef76d8f642f530023.html')
