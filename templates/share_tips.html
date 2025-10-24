@@ -79,6 +79,12 @@
     background-color: #4a148c;
   }
 
+  input[type="text"],
+  textarea,
+  button {
+    box-sizing: border-box;
+  }
+
   @media (max-width: 500px) {
     .container {
       padding: clamp(15px, 5vw, 25px);
@@ -90,20 +96,20 @@
 </head>
 
 <body>
-   
-    <div class="container">
-        <h2>✍️ Share Your Study Tip</h2>
-        <form method="POST">
-            <label for="author">Your Name (Optional)</label>
-            <input type="text" name="author" id="author" placeholder="e.g., Anamika">
 
-            <label for="tip">Your Study Tip</label>
-            <textarea name="tip" id="tip" rows="6" placeholder="Write your tip here..." required></textarea>
+  <div class="container">
+    <h2>✍️ Share Your Study Tip</h2>
+    <form method="POST">
+      <label for="author">Your Name (Optional)</label>
+      <input type="text" name="author" id="author" placeholder="e.g., Anamika">
 
-            <button type="submit">🚀 Submit Tip</button>
-        </form>
-    </div>
-   
+      <label for="tip">Your Study Tip</label>
+      <textarea name="tip" id="tip" rows="6" placeholder="Write your tip here..." required></textarea>
+
+      <button type="submit">🚀 Submit Tip</button>
+    </form>
+  </div>
+
 
 </body>
 
