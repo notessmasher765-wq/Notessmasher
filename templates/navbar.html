@@ -1,22 +1,33 @@
 <style>
-    /* Navbar */
+    /* Navbar Base */
     nav {
         display: flex;
         justify-content: space-between;
         align-items: center;
         padding: clamp(0.5rem, 2vw, 1rem) clamp(1rem, 5vw, 3rem);
         background: linear-gradient(135deg, #f5f5dc, #ce93d8);
-
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
         position: sticky;
         top: 0;
         z-index: 1000;
+        flex-wrap: wrap;
     }
 
-    nav .logo {
-        font-size: clamp(1.2rem, 2.5vw, 1.5rem);
-        font-weight: bold;
+    nav .logo a {
+        text-decoration: none;
         color: #6a1b9a;
+        font-weight: 700;
+        font-size: clamp(1.2rem, 2.5vw, 1.6rem);
+        letter-spacing: 0.5px;
+    }
+
+    /* Menu Links */
+    #navLinks {
+        list-style: none;
+        display: flex;
+        gap: 1.5rem;
+        align-items: center;
+        transition: all 0.3s ease-in-out;
     }
 
     nav ul {
@@ -52,15 +63,18 @@
         min-width: 180px;
         top: 120%;
         left: 0;
-        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         border-radius: 8px;
+        overflow: hidden;
+        z-index: 1001;
     }
 
     .dropdown a {
         display: block;
-        padding: 10px;
+        padding: 10px 14px;
         color: #333;
         text-align: left;
+        white-space: nowrap;
     }
 
     .dropdown a:hover {
@@ -68,18 +82,17 @@
         color: #6a1b9a;
     }
 
-    nav ul li:hover .dropdown {
+    /* Hover (Desktop) */
+    #navLinks li:hover .dropdown {
         display: block;
     }
 
+    /* Search Results */
     #searchResults {
         position: absolute;
-        /* ensures dropdown sits below input */
         top: 40px;
-        /* adjust this based on your input height */
         left: 0;
         width: 250px;
-        /* adjust width if needed */
         max-height: 200px;
         overflow-y: auto;
         display: none;
@@ -87,58 +100,105 @@
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         border-radius: 6px;
         z-index: 2000;
-        /* ensures it’s on top of other elements */
+    }
+
+    /* Hamburger Icon */
+    .menu-icon {
+        display: none;
+        font-size: 1.8rem;
+        cursor: pointer;
+        color: #6a1b9a;
+        background: none;
+        border: none;
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 850px) {
+        .menu-icon {
+            display: block;
+        }
+
+        #navLinks {
+            display: none;
+            flex-direction: column;
+            width: 100%;
+            background: #fff;
+            padding: 1rem 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            position: absolute;
+            top: 100%;
+            left: 0;
+        }
+
+        #navLinks.show {
+            display: flex;
+        }
+
+        #navLinks li {
+            width: 100%;
+            text-align: center;
+        }
+
+        #navLinks li a {
+            display: block;
+            width: 100%;
+        }
+
+        /* Disable hover dropdowns on mobile */
+        #navLinks li:hover .dropdown {
+            display: none;
+        }
+
+        #navLinks li .dropdown {
+            position: relative;
+            top: 0;
+            left: 0;
+            box-shadow: none;
+            border-radius: 6px;
+            margin-top: 4px;
+        }
+
+        #navLinks li.active .dropdown {
+            display: block;
+        }
+
+        /* Center search bar */
+        #noteSearch {
+            width: 90%;
+            margin: 10px auto;
+            display: block;
+        }
     }
 </style>
+<script>
+    // Toggle mobile menu + hamburger icon
+    function toggleMenu() {
+        const navLinks = document.getElementById("navLinks");
+        const menuIcon = document.querySelector(".menu-icon");
 
-<!-- templates/navbar.html -->
-<nav>
-    <div class="logo">    <a href="{{ url_for('routes.home') }}" 
-           style="text-decoration: none; color: inherit; font-weight: bold; font-size: 1.3rem;">
-            Notes Smasher
-        </a></div>
-    <ul>
-        <li><a href="{{ url_for('routes.user_home') }}">Home</a></li>
-        <li><a href="{{ url_for('routes.upload') }}">Upload Notes</a></li>
-        <li>
-            <a href="#">Notes ▼</a>
-            <div class="dropdown">
-                <a href="{{ url_for('routes.my_notes') }}">My Notes</a>
-                <a href="{{ url_for('routes.view_notes') }}">View Notes</a>
-            </div>
-        </li>
-        <li><a href="{{ url_for('routes.aktu') }}">AKTU</a>
+        navLinks.classList.toggle("show");
 
-        </li>
-        <li><a href="{{ url_for('routes.dashboard') }}">Dashboard</a></li>
-        <li><a href="{{ url_for('routes.auth') }}">Login / Register</a></li>
-        <li>
-            <a href="#">Contact ▼</a>
-            <div class="dropdown">
-                <a href="{{ url_for('routes.contact') }}">Collaboration (Work With Us)</a>
-                <a href="{{ url_for('routes.about_us') }}">About Us</a>
-            </div>
-        </li>
-        <li>
-            <input type="text" id="noteSearch" placeholder="Search notes..."
-                style="padding:6px 10px; border-radius:6px; border:1px solid #ccc;">
-            <div id="searchResults"
-                style="position:absolute; background:#fff; max-height:200px; overflow-y:auto; display:none; box-shadow:0 4px 10px rgba(0,0,0,0.1); border-radius:6px;">
-            </div>
-        </li>
+        // Toggle icon between ☰ and ✖
+        if (navLinks.classList.contains("show")) {
+            menuIcon.textContent = "✖";
+        } else {
+            menuIcon.textContent = "☰";
+        }
+    }
 
+    // Dropdown toggle for mobile
+    function toggleDropdown(e) {
+        e.preventDefault();
+        const parentLi = e.target.closest("li");
+        parentLi.classList.toggle("active");
+    }
 
-        <li>
-            <a href="{{ url_for('routes.profile') }}" title="My Profile">
-                <img src="{{ url_for('static', filename='images/image.png') }}" alt="Profile Icon" width="35"
-                    height="35" style="border-radius: 50%; vertical-align: middle;">
-            </a>
-        </li>
-    </ul>
-    <script>
-        const searchInput = document.getElementById('noteSearch');
-        const resultsDiv = document.getElementById('searchResults');
+    // Search logic
+    const searchInput = document.getElementById('noteSearch');
+    const resultsDiv = document.getElementById('searchResults');
 
+    if (searchInput) {
         searchInput.addEventListener('input', () => {
             const query = searchInput.value.trim();
             resultsDiv.innerHTML = '';
@@ -174,7 +234,7 @@
             }
         });
 
-        // Redirect on Enter key press
+        // Redirect on Enter key
         searchInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 e.preventDefault();
@@ -185,18 +245,62 @@
             }
         });
 
-        // Hide results when clicked outside
+        // Hide results when clicking outside
         document.addEventListener('click', (e) => {
             if (!searchInput.contains(e.target) && !resultsDiv.contains(e.target)) {
                 resultsDiv.style.display = 'none';
             }
         });
-
-         function toggleMenu() {
-        document.getElementById("navLinks").classList.toggle("show");
     }
-    </script>
+</script>
 
 
 
+
+
+<!-- Navbar -->
+<nav>
+    <div class="logo">
+        <a href="{{ url_for('routes.home') }}">Notes Smasher</a>
+    </div>
+
+    <button class="menu-icon" onclick="toggleMenu()">☰</button>
+
+    <ul id="navLinks">
+        <li><a href="{{ url_for('routes.user_home') }}">Home</a></li>
+        <li><a href="{{ url_for('routes.upload') }}">Upload Notes</a></li>
+
+        <li>
+            <a href="#" onclick="toggleDropdown(event)">Notes ▼</a>
+            <div class="dropdown">
+                <a href="{{ url_for('routes.my_notes') }}">My Notes</a>
+                <a href="{{ url_for('routes.view_notes') }}">View Notes</a>
+            </div>
+        </li>
+
+        <li><a href="{{ url_for('routes.aktu') }}">AKTU</a></li>
+        <li><a href="{{ url_for('routes.dashboard') }}">Dashboard</a></li>
+        <li><a href="{{ url_for('routes.auth') }}">Login / Register</a></li>
+
+        <li>
+            <a href="#" onclick="toggleDropdown(event)">Contact ▼</a>
+            <div class="dropdown">
+                <a href="{{ url_for('routes.contact') }}">Collaboration</a>
+                <a href="{{ url_for('routes.about_us') }}">About Us</a>
+            </div>
+        </li>
+
+        <li>
+            <input type="text" id="noteSearch" placeholder="Search notes..."
+                style="padding:6px 10px; border-radius:6px; border:1px solid #ccc; width: 90%;">
+            <div id="searchResults"></div>
+        </li>
+
+        <li>
+            <a href="{{ url_for('routes.profile') }}" title="My Profile">
+                <img src="{{ url_for('static', filename='images/image.png') }}" alt="Profile Icon" width="35"
+                    height="35" style="border-radius: 50%; vertical-align: middle;">
+            </a>
+        </li>
+    </ul>
 </nav>

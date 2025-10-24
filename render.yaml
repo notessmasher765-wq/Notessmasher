@@ -4,6 +4,7 @@ services:
     name: notessmasher
     env: python
     plan: free
+    pythonVersion: "3.11"
     buildCommand: bash render-build.sh
     startCommand: gunicorn app:app
     envVars:

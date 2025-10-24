@@ -20,7 +20,7 @@
     }
 
     .flash {
-      max-width: 900px;
+      max-width: 95%;
       margin: 0 auto clamp(15px, 4vw, 20px);
       padding: clamp(10px, 3vw, 15px) clamp(15px, 4vw, 20px);
       border-radius: 12px;
@@ -45,12 +45,13 @@
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
       max-width: 900px;
       margin: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
     }
 
     label {
       font-weight: bold;
-      display: block;
-      margin-top: clamp(15px, 4vw, 20px);
       color: #4a148c;
     }
 
@@ -63,6 +64,7 @@
       border: 1px solid #ccc;
       border-radius: 10px;
       font-size: 15px;
+      box-sizing: border-box;
     }
 
     textarea {
@@ -80,6 +82,7 @@
       font-size: clamp(14px, 3vw, 16px);
       cursor: pointer;
       margin-top: clamp(20px, 5vw, 30px);
+      transition: 0.3s;
     }
 
     .form-btn:hover {
@@ -118,131 +121,53 @@
       cursor: not-allowed;
     }
 
-    .disabled-form .form-btn {
-      cursor: not-allowed;
+    /* File Preview Styles */
+    #filePreview {
+      background: #f9e5fb;
+      border-radius: 8px;
+      padding: 10px 15px;
+      margin-top: 10px;
+      list-style: disc;
+      font-size: 14px;
+      color: #4a148c;
+    }
+
+    /* Progress bar */
+    #progressContainer div {
+      font-size: clamp(12px, 2.5vw, 14px);
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 992px) {
+      .field-group {
+        flex-direction: column;
+      }
+      form {
+        padding: 20px;
+      }
     }
 
     @media (max-width: 600px) {
       body {
-        padding: 20px;
+        padding: 15px;
       }
-
-      form {
-        padding: 20px;
+      h2 {
+        font-size: 22px;
       }
-
-      .field-group {
-        flex-direction: column;
-        gap: 10px;
-      }
-
       .form-btn {
         font-size: 14px;
         padding: 12px;
       }
-
-      h2 {
-        font-size: 22px;
-      }
     }
   </style>
-  <script>
-    function toggleUploadFields() {
-      const userType = document.getElementById('user_type').value;
-      document.getElementById('collegeFields').style.display = userType === 'college' ? 'block' : 'none';
-      document.getElementById('schoolFields').style.display = userType === 'school' ? 'block' : 'none';
-    }
-
-    window.onload = () => {
-      toggleUploadFields();
-    };
-
-    //---------------------------------------------------------------------------------------------------------
-    const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
-
-    // File upload preview + size check
-    document.addEventListener("DOMContentLoaded", () => {
-      const fileInput = document.getElementById("file");
-      const filePreview = document.getElementById("filePreview");
-      const fileError = document.getElementById("fileError");
-
-      if (fileInput) {
-        fileInput.addEventListener("change", () => {
-          filePreview.innerHTML = "";
-          fileError.textContent = "";
-
-          Array.from(fileInput.files).forEach(file => {
-            if (file.size > MAX_FILE_SIZE) {
-              fileError.textContent = `❌ ${file.name} is too large (max 10 MB).`;
-            } else {
-              const li = document.createElement("li");
-              li.textContent = `${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`;
-              filePreview.appendChild(li);
-            }
-          });
-        });
-      }
-
-      // Live textarea character counter
-      const textarea = document.getElementById("typed_content");
-      const charCount = document.getElementById("charCount");
-
-      if (textarea) {
-        textarea.addEventListener("input", () => {
-          charCount.textContent = textarea.value.length;
-        });
-      }
-    });
-
-
-    // Upload progress bar
-    const form = document.querySelector("form");
-    const progressContainer = document.getElementById("progressContainer");
-    const uploadProgress = document.getElementById("uploadProgress");
-
-    if (form) {
-      form.addEventListener("submit", (e) => {
-        e.preventDefault(); // Stop normal form for demo; replace with AJAX in real app
-
-        const formData = new FormData(form);
-        const xhr = new XMLHttpRequest();
-
-        xhr.open("POST", form.action, true);
-
-        xhr.upload.addEventListener("progress", (e) => {
-          if (e.lengthComputable) {
-            const percent = Math.round((e.loaded / e.total) * 100);
-            progressContainer.style.display = "block";
-            uploadProgress.style.width = percent + "%";
-            uploadProgress.textContent = percent + "%";
-          }
-        });
-
-        xhr.onload = () => {
-          if (xhr.status === 200) {
-            uploadProgress.style.background = "#388e3c";
-            uploadProgress.textContent = "✅ Uploaded!";
-          } else {
-            uploadProgress.style.background = "#b71c1c";
-            uploadProgress.textContent = "❌ Failed!";
-          }
-        };
-
-        xhr.send(formData);
-      });
-    }
-
-
-  </script>
 </head>
 
 <body>
   {% extends "base.html" %}
-
   {% block title %}Upload Notes | StudySpark{% endblock %}
-
   {% block content %}
   <h2>Upload Notes</h2>
+
   {% with messages = get_flashed_messages(with_categories=true) %}
   {% if messages %}
   {% for category, message in messages %}
@@ -267,29 +192,24 @@
     </a>
   </div>
   {% else %}
-  <!-- Show actual form here -->
+  <!-- Actual form will show here for logged-in users -->
   {% endif %}
 
   <form method="POST" action="{{ url_for('routes.upload') }}" enctype="multipart/form-data"
     class="{{ 'disabled-form' if not is_authenticated else '' }}">
-
-    <!-- Title field (was missing!) -->
     <label for="title">Title:</label>
     <input type="text" id="title" name="title" placeholder="Enter a title for your notes" {% if not is_authenticated
       %}disabled{% endif %} required>
 
     <label for="user_type">You are a:</label>
-    <select name="user_type" id="user_type" onchange="toggleUploadFields()" required {% if not is_authenticated
-      %}disabled{% endif %}>
+    <select name="user_type" id="user_type" required {% if not is_authenticated %}disabled{% endif %}>
       <option value="">Select...</option>
       <option value="college">College Student</option>
       <option value="school">School Student</option>
     </select>
 
-
-
     <label for="note_type">Type of Notes:</label>
-    <select name="note_type" id="note_type" {% if not is_authenticated %}disabled{% endif %} required>
+    <select name="note_type" id="note_type" required {% if not is_authenticated %}disabled{% endif %}>
       <option value="">Select...</option>
       <option value="general">General</option>
       <option value="notes">Notes</option>
@@ -297,11 +217,7 @@
       <option value="aktu_pyq">AKTU PYQ</option>
     </select>
 
-
-    <!-- (rest of your existing form stays the same) -->
-
-
-    <div id="collegeFields" style="display: none;">
+    <div id="collegeFields" style="display:none;">
       <label for="course_name">Course Name:</label>
       <select name="course_name" {% if not is_authenticated %}disabled{% endif %}>
         <option value="">Select...</option>
@@ -315,7 +231,7 @@
       </select>
     </div>
 
-    <div id="schoolFields" style="display: none;">
+    <div id="schoolFields" style="display:none;">
       <label for="class">Class:</label>
       <select name="class" {% if not is_authenticated %}disabled{% endif %}>
         <option value="">Select...</option>
@@ -348,17 +264,15 @@
     </div>
 
     <label for="file">Upload File (PDF, DOC, Images):</label>
-    <input type="file" id="file" name="file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" multiple {% if not
-      is_authenticated %}disabled{% endif %}>
+    <input type="file" id="file" name="file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" multiple
+      {% if not is_authenticated %}disabled{% endif %}>
 
-
-    <!-- File Preview Section -->
-    <ul id="filePreview" style="margin-top:10px; padding-left:20px; font-size:14px; color:#4a148c;"></ul>
+    <ul id="filePreview"></ul>
     <div id="fileError" style="color:#b71c1c; font-size:14px; margin-top:5px;"></div>
 
     <label for="typed_content">Or Paste Your Notes:</label>
-    <textarea id="typed_content" name="typed_content" placeholder="Type or paste your notes here..." {% if not
-      is_authenticated %}disabled{% endif %}></textarea>
+    <textarea id="typed_content" name="typed_content" placeholder="Type or paste your notes here..."
+      {% if not is_authenticated %}disabled{% endif %}></textarea>
     <div style="font-size:14px; color:#666; margin-top:5px;">
       Characters: <span id="charCount">0</span>
     </div>
@@ -366,12 +280,11 @@
     <div id="progressContainer" style="display:none; margin-top:20px;">
       <div style="background:#ddd; border-radius:10px; overflow:hidden; height:20px;">
         <div id="uploadProgress" style="width:0%; background:#6a1b9a; height:100%; color:white; 
-      text-align:center; font-size:12px; line-height:20px; transition: width 0.3s;">
+      text-align:center; line-height:20px; transition: width 0.3s;">
           0%
         </div>
       </div>
     </div>
-
 
     <button type="submit" class="form-btn" {% if not is_authenticated %}disabled{% endif %}>Submit Notes</button>
   </form>
@@ -381,10 +294,75 @@
     recommended for better sharing!
   </div>
 
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const userType = document.getElementById('user_type');
+      const collegeFields = document.getElementById('collegeFields');
+      const schoolFields = document.getElementById('schoolFields');
+      const fileInput = document.getElementById("file");
+      const filePreview = document.getElementById("filePreview");
+      const fileError = document.getElementById("fileError");
+      const textarea = document.getElementById("typed_content");
+      const charCount = document.getElementById("charCount");
+      const form = document.querySelector("form");
+      const progressContainer = document.getElementById("progressContainer");
+      const uploadProgress = document.getElementById("uploadProgress");
 
+      const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+
+      function toggleFields() {
+        collegeFields.style.display = userType.value === 'college' ? 'block' : 'none';
+        schoolFields.style.display = userType.value === 'school' ? 'block' : 'none';
+      }
+      toggleFields();
+      userType?.addEventListener('change', toggleFields);
+
+      fileInput?.addEventListener('change', () => {
+        filePreview.innerHTML = "";
+        fileError.textContent = "";
+        Array.from(fileInput.files).forEach(file => {
+          if (file.size > MAX_FILE_SIZE) {
+            fileError.textContent = `❌ ${file.name} is too large (max 10 MB).`;
+          } else {
+            const li = document.createElement("li");
+            li.textContent = `${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`;
+            filePreview.appendChild(li);
+          }
+        });
+      });
+
+      textarea?.addEventListener('input', () => {
+        charCount.textContent = textarea.value.length;
+      });
+
+      form?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const formData = new FormData(form);
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", form.action, true);
+
+        xhr.upload.addEventListener("progress", (e) => {
+          if (e.lengthComputable) {
+            const percent = Math.round((e.loaded / e.total) * 100);
+            progressContainer.style.display = "block";
+            uploadProgress.style.width = percent + "%";
+            uploadProgress.textContent = percent + "%";
+          }
+        });
+
+        xhr.onload = () => {
+          if (xhr.status === 200) {
+            uploadProgress.style.background = "#388e3c";
+            uploadProgress.textContent = "✅ Uploaded!";
+          } else {
+            uploadProgress.style.background = "#b71c1c";
+            uploadProgress.textContent = "❌ Failed!";
+          }
+        };
+        xhr.send(formData);
+      });
+    });
+  </script>
   {% endblock %}
-
-
 </body>
-
 </html>

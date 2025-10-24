@@ -6,30 +6,29 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <!-- SEO -->
-  <title>Login & Register | Notessmasher</title>
+  <title>Login & Register | StudySpark</title>
   <meta name="description"
-    content="Join Notessmasher to upload, view, and share study notes. Login or register to access your dashboard and AKTU resources daily.">
+    content="Join StudySpark to upload, view, and share study notes. Login or register to access your dashboard and AKTU resources daily.">
 
   <style>
     body {
       font-family: 'Poppins', sans-serif;
       background: linear-gradient(135deg, #f3e5f5, #e1bee7);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
       margin: 0;
+      padding: 0;
     }
 
     .main-container {
       display: flex;
+      flex-direction: row;
       background: white;
       border-radius: 20px;
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
       overflow: hidden;
-      max-width: 768px;
-      width: 100%;
+      max-width: 900px;
+      width: 90%;
       min-height: auto;
+      margin: 40px auto;
     }
 
     .illustration {
@@ -43,7 +42,7 @@
     }
 
     .illustration img {
-      max-width: 100%;
+      max-width: 65%;
       height: auto;
       border-radius: 12px;
     }
@@ -57,14 +56,14 @@
 
     .container {
       flex: 1;
-      padding: clamp(15px, 5vw, 40px);
+      padding: clamp(15px, 5vw, 30px);
       background: #faf5fb;
     }
 
     .toggle-buttons {
       display: flex;
       justify-content: space-between;
-      margin-bottom: 24px;
+      margin-bottom: 20px;
       border-radius: 12px;
       overflow: hidden;
     }
@@ -130,16 +129,20 @@
       box-shadow: 0 0 5px rgba(126, 87, 194, 0.4);
     }
 
+    .form-btn,
+    .google-btn {
+      width: 100%;
+      font-size: 16px;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      padding: 12px;
+      margin-top: 10px;
+    }
+
     .form-btn {
       background-color: #7e57c2;
       color: white;
-      padding: 12px;
-      border: none;
-      border-radius: 12px;
-      width: 100%;
-      font-size: 16px;
-      cursor: pointer;
-      transition: 0.3s;
     }
 
     .form-btn:hover {
@@ -148,41 +151,20 @@
 
     .google-btn {
       background-color: #db4437;
-      margin-top: 15px;
-      display: block;
-      text-align: center;
-      width: 100%;
-      font-size: 16px;
-      text-decoration: none;
-      border-radius: 12px;
-      padding: 12px;
       color: white;
-      border: none;
-      cursor: pointer;
+      text-align: center;
+      display: block;
     }
 
     .google-btn:hover {
       background-color: #c1351d;
     }
 
-    .actions {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 14px;
-    }
-
-    .actions a {
-      color: #6a1b9a;
-      text-decoration: none;
-      font-weight: bold;
-    }
-
     .checkbox-group {
       display: flex;
-      align-items: flex-start;
+      align-items: center;
       gap: 8px;
-      margin: 12px 0;
+      margin: 10px 0;
     }
 
     .checkbox-group label {
@@ -193,9 +175,8 @@
     }
 
     .checkbox-group a {
-      color: #6a1b9a;
       font-weight: bold;
-      text-decoration: none;
+      color: #6a1b9a;
     }
 
     .flash {
@@ -216,9 +197,49 @@
       background-color: #ffcdd2;
       color: #b71c1c;
     }
+
+    @media (max-width: 768px) {
+      .main-container {
+        flex-direction: column;
+        width: 95%;
+        margin: 20px auto;
+      }
+
+      .illustration {
+        order: 1;
+        padding: 20px;
+      }
+
+      .container {
+        order: 2;
+        padding: 20px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .illustration img {
+        max-width: 100%;
+      }
+
+      .toggle-buttons button {
+        font-size: 14px;
+        padding: 10px;
+      }
+
+      .form-btn,
+      .google-btn {
+        font-size: 14px;
+        padding: 10px;
+      }
+
+      label {
+        font-size: 14px;
+      }
+    }
   </style>
 
   <script>
+    // Show login or register
     function showForm(type) {
       document.getElementById('loginForm').classList.remove('active');
       document.getElementById('registerForm').classList.remove('active');
@@ -227,12 +248,14 @@
       document.getElementById(type + 'Btn').classList.add('active');
     }
 
+    // Toggle college/school fields
     function toggleFields() {
       const type = document.getElementById('user_type').value;
       document.getElementById('college-fields').style.display = type === 'college' ? 'block' : 'none';
       document.getElementById('school-fields').style.display = type === 'school' ? 'block' : 'none';
     }
 
+    // Toggle show/hide password
     function togglePassword() {
       let pwd = document.getElementById("password");
       let cpwd = document.getElementById("confirm_password");
@@ -240,6 +263,7 @@
       cpwd.type = cpwd.type === "password" ? "text" : "password";
     }
 
+    // Validate registration form
     function validateForm() {
       const pwd = document.getElementById("password").value;
       const cpwd = document.getElementById("confirm_password").value;
@@ -252,7 +276,7 @@
     }
 
     window.onload = () => {
-      showForm('login');  // default
+      showForm('login'); // default form
     };
   </script>
 </head>
@@ -268,13 +292,13 @@
   {% endwith %}
 
   <div class="main-container">
-    <!-- Left Illustration -->
+    <!-- Illustration -->
     <div class="illustration">
       <img src="{{ url_for('static', filename='login image/image.png') }}" alt="StudySpark Login Illustration">
       <h2>Stay Chill ✌ Login or Register</h2>
     </div>
 
-    <!-- Right Forms -->
+    <!-- Forms -->
     <div class="container">
       <div class="toggle-buttons">
         <button id="loginBtn" onclick="showForm('login')">Login</button>
@@ -286,10 +310,9 @@
         <h2>Login</h2>
         <form method="POST" action="{{ url_for('routes.auth') }}">
           <input type="hidden" name="action" value="login">
-          <input type="text" name="username" placeholder="Email or Phone Number" required
-            aria-label="Email or Phone Number">
-          <input type="password" name="password" placeholder="Password" required aria-label="Password">
-          <div class="actions">
+          <input type="text" name="username" placeholder="Email or Phone Number" required>
+          <input type="password" name="password" placeholder="Password" required>
+          <div class="checkbox-group">
             <label><input type="checkbox" name="remember"> Remember me</label>
             <a href="#">Forgot Password?</a>
           </div>
@@ -305,23 +328,24 @@
           <input type="hidden" name="action" value="register">
 
           <label for="name">Full Name:</label>
-          <input type="text" name="name" required aria-label="Full Name">
+          <input type="text" name="name" required>
 
           <label for="email">Email:</label>
-          <input type="email" name="email" required aria-label="Email">
+          <input type="email" name="email" required>
 
           <label for="phone">Phone Number:</label>
-          <input type="tel" name="phone" pattern="[0-9]{10}" required placeholder="10-digit number"
-            aria-label="Phone Number">
+          <input type="tel" name="phone" pattern="[0-9]{10}" placeholder="10-digit number" required>
 
           <label for="user_type">You are a:</label>
-          <select name="user_type" id="user_type" onchange="toggleFields()" required aria-label="User Type">
+          <select name="user_type" id="user_type" onchange="toggleFields()" required>
             <option value="">Select...</option>
             <option value="college">College Student</option>
             <option value="school">School Student</option>
           </select>
 
-          <div id="college-fields" style="display: none;"> <label for="course">Course:</label> <select name="course">
+          <div id="college-fields" style="display:none;">
+            <label for="course">Course:</label>
+            <select name="course">
               <option value="">Select...</option>
               <option value="B.Tech">B.Tech</option>
               <option value="BCA">BCA</option>
@@ -333,7 +357,9 @@
             </select>
           </div>
 
-          <div id="school-fields" style="display: none;"> <label for="class">Class:</label> <select name="class">
+          <div id="school-fields" style="display:none;">
+            <label for="class">Class:</label>
+            <select name="class">
               <option value="">Select...</option>
               <option value="6">6th</option>
               <option value="7">7th</option>
@@ -344,44 +370,34 @@
               <option value="12">12th</option>
             </select>
           </div>
-          <form onsubmit="return validateForm()">
 
-          <label for="username">Username:</label> <input type="text" name="username" required>
-          <label for="password">Password:</label> <input type="password" name="password" id="password" required
-            pattern=".{8,}" title="Minimum 8 characters"> <label for="confirm_password">Confirm Password:</label>
-          <input type="password" name="confirm_password" id="confirm_password" required> <!-- Show Password -->
-          <div class="checkbox-group"> <input type="checkbox" onclick="togglePassword()" id="showPassword">
+          <label for="username">Username:</label>
+          <input type="text" name="username" required>
+
+          <label for="password">Password:</label>
+          <input type="password" name="password" id="password" required pattern=".{8,}"
+            title="Minimum 8 characters">
+
+          <label for="confirm_password">Confirm Password:</label>
+          <input type="password" name="confirm_password" id="confirm_password" required>
+
+          <div class="checkbox-group">
+            <input type="checkbox" onclick="togglePassword()" id="showPassword">
             <label for="showPassword">Show Password</label>
           </div>
 
-          <!-- Terms and Conditions -->
-          <div class="checkbox-group"> <input type="checkbox" id="terms" required> <label for="terms"> I agree to the <a
-                href="{{ url_for('routes.terms') }}" style="color: #4a148c; font-weight: bold;">Terms & Conditions</a>
-            </label> </div>
+          <div class="checkbox-group">
+            <input type="checkbox" id="terms" required>
+            <label for="terms">I agree to the <a href="{{ url_for('routes.terms') }}">Terms & Conditions</a></label>
+          </div>
 
-          <button type="submit" class="form-btn">Register</button> <a href="{{ url_for('google.login') }}"
-            class="google-btn">Register with Google</a>
-</form> </form> </div> </div> </div> 
-
-<script>
-function togglePassword() {
-    let pwd = document.getElementById("password");
-    let cpwd = document.getElementById("confirm_password");
-
-    pwd.type = pwd.type === "password" ? "text" : "password";
-    cpwd.type = cpwd.type === "password" ? "text" : "password";
-}
-
-function validateForm() {
-    const pwd = document.getElementById("password").value;
-    const cpwd = document.getElementById("confirm_password").value;
-
-    if (pwd !== cpwd) {
-        alert("Passwords do not match!");
-        return false; // Prevent form submission
-    }
-    return true; // Allow form submission
-}
-</script>
+          <button type="submit" class="form-btn">Register</button>
+          <a href="{{ url_for('google.login') }}" class="google-btn">Register with Google</a>
+        </form>
+      </div>
+    </div>
+  </div>
 </body>
+
 </html>
+

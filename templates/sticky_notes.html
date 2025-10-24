@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <title>Sticky Notes</title>
@@ -11,8 +12,9 @@
       font-family: 'Inter', sans-serif;
       margin: 0;
       padding: 20px;
-      overflow: hidden;
+      overflow-x: hidden;
     }
+
 
     .container {
       max-width: 800px;
@@ -37,7 +39,7 @@
     textarea {
       width: 100%;
       height: 100px;
-      padding: 12px;
+      padding: 6px;
       border-radius: 10px;
       border: 1px solid #ce93d8;
       font-size: 16px;
@@ -64,7 +66,7 @@
     .note {
       background-color: #c5e2ff;
       border-radius: 12px;
-      box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
       padding: 12px;
       position: absolute;
       width: 200px;
@@ -78,73 +80,107 @@
       color: #4a148c;
       word-wrap: break-word;
     }
+
+    /* Responsive layout for mobile */
+    @media (max-width: 768px) {
+      body {
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+      }
+
+      .note {
+        position: static !important;
+        /* Remove floating */
+        width: 100% !important;
+        max-width: 280px;
+        margin: 10px auto;
+        cursor: default;
+      }
+
+      .container {
+        padding-bottom: 20px;
+      }
+    }
   </style>
 </head>
+
 <body>
 
   {% extends "base.html" %}
 
-{% block title %}Sticky Notes | StudySpark{% endblock %}
+  {% block title %}Sticky Notes | StudySpark{% endblock %}
 
-{% block content %}
-<div class="container">
-  <h1>🗒️ Sticky Notes</h1>
+  {% block content %}
+  <div class="container">
+    <h1>🗒️ Sticky Notes</h1>
 
-  <form method="POST">
-    <textarea name="note" placeholder="Write your note..." required></textarea>
-    <button type="submit">Add Note</button>
-  </form>
-</div>
+    <form method="POST">
+      <textarea name="note" placeholder="Write your note..." required></textarea>
+      <button type="submit">Add Note</button>
+    </form>
+  </div>
 
-<!-- Sticky Notes -->
-{% for note in notes %}
+  <!-- Sticky Notes -->
+  {% for note in notes %}
   <div class="note" id="note-{{ note.id }}" style="top: {{ note.y }}px; left: {{ note.x }}px;">
     <p>{{ note.content }}</p>
   </div>
-{% endfor %}
-<script>
-  const notes = document.querySelectorAll('.note');
-  let draggedNote = null;
-  let offsetX = 0;
-  let offsetY = 0;
+  {% endfor %}
+  <script>
+    const notes = document.querySelectorAll('.note');
+    let draggedNote = null;
+    let offsetX = 0;
+    let offsetY = 0;
 
-  notes.forEach(note => {
-    note.addEventListener('mousedown', function (e) {
-      draggedNote = note;
-      offsetX = e.clientX - note.offsetLeft;
-      offsetY = e.clientY - note.offsetTop;
-      note.style.zIndex = 1000;
-    });
-  });
-
-  document.addEventListener('mousemove', function (e) {
-    if (draggedNote) {
-      draggedNote.style.left = (e.clientX - offsetX) + 'px';
-      draggedNote.style.top = (e.clientY - offsetY) + 'px';
-    }
-  });
-
-  document.addEventListener('mouseup', function (e) {
-    if (draggedNote) {
-      const noteId = draggedNote.id.split('-')[1];
-      const x = parseInt(draggedNote.style.left);
-      const y = parseInt(draggedNote.style.top);
-
-      // Send position update to backend
-      fetch(`/update_position/${noteId}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ x, y })
+    // Disable drag on mobile
+    if (window.innerWidth <= 768) {
+      notes.forEach(note => {
+        note.style.cursor = "default";
+      });
+    } else {
+      // Desktop drag behavior
+      notes.forEach(note => {
+        note.addEventListener('mousedown', function (e) {
+          draggedNote = note;
+          offsetX = e.clientX - note.offsetLeft;
+          offsetY = e.clientY - note.offsetTop;
+          note.style.zIndex = 1000;
+        });
       });
 
-      draggedNote.style.zIndex = 1;
-      draggedNote = null;
-    }
-  });
-</script>
+      document.addEventListener('mousemove', function (e) {
+        if (draggedNote) {
+          draggedNote.style.left = (e.clientX - offsetX) + 'px';
+          draggedNote.style.top = (e.clientY - offsetY) + 'px';
+        }
+      });
 
-    {% endblock %}
+      document.addEventListener('mouseup', function () {
+        if (draggedNote) {
+          const noteId = draggedNote.id.split('-')[1];
+          const x = parseInt(draggedNote.style.left);
+          const y = parseInt(draggedNote.style.top);
+
+          fetch(`/update_position/${noteId}`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ x, y })
+          });
+
+          draggedNote.style.zIndex = 1;
+          draggedNote = null;
+        }
+      });
+    }
+  </script>
+
+
+
+  {% endblock %}
 
 
 </body>
+
 </html>

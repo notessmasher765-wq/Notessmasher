@@ -1,161 +1,121 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Contact Us | StudySpark</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-  <style>
-    body {
-      background-color: #f3e5f5;
-      font-family: 'Segoe UI', sans-serif;
-      margin: 0;
-      padding: clamp(20px, 5vw, 40px);
-      color: #4a148c;
-    }
-
-    .container {
-      display: flex;
-      flex-wrap: wrap;
-      background: white;
-      border-radius: 20px;
-      box-shadow: 0 0 25px rgba(106, 27, 154, 0.2);
-      max-width: 1000px;
-      margin: auto;
-      overflow: hidden;
-       gap: clamp(20px, 2vw, 40px);
-    }
-
-    .form-section, .info-section {
-      flex: 1 1 400px;
-      padding: clamp(20px, 4vw, 40px);
-    }
-
-    .form-section h2, .info-section h2 {
-      color: #6a1b9a;
-      margin-bottom: 20px;
-    }
-
-    input[type="text"],
-    input[type="email"],
-    textarea {
-      width: 100%;
-      padding: clamp(10px, 2vw, 14px);
-  margin-bottom: clamp(15px, 2vw, 20px);
-      border: 1px solid #ce93d8;
-      border-radius: 10px;
-      background-color: #fdf9ff;
-    }
-
-    textarea {
-      resize: vertical;
-      height: 120px;
-    }
-
-    .submit-btn {
-      background-color: #6a1b9a;
-      color: white;
-      border: none;
-      padding: clamp(12px, 2vw, 16px);
-      font-size: 16px;
-      border-radius: 10px;
-      cursor: pointer;
-      width: 100%;
-      transition: background-color 0.3s ease;
-    }
-
-    .submit-btn:hover {
-      background-color: #4a148c;
-    }
-
-    .info-section {
-      background-color: #f8eafa;
-      border-left: 4px solid #ce93d8;
-      border-radius: 0 20px 20px 0;
-    }
-
-    .info-item {
-      margin-bottom: 25px;
-    }
-
-    .info-item i {
-      margin-right: 10px;
-      color: #6a1b9a;
-    }
-
-    .info-item a {
-      color: #4a148c;
-      text-decoration: none;
-      font-weight: bold;
-    }
-
-    .info-item a:hover {
-      text-decoration: underline;
-    }
-
-    @media (max-width: 768px) {
-      .container {
-        flex-direction: column;
-      }
-
-      .info-section {
-        border-left: none;
-        border-top: 4px solid #ce93d8;
-        border-radius: 0 0 20px 20px;
-      }
-    }
-  </style>
-</head>
-<body>
-  {% extends "base.html" %}
+{% extends "base.html" %}
 
 {% block title %}Contact Us | StudySpark{% endblock %}
 
 {% block content %}
-  <div class="container">
-    <div class="form-section">
-      <h2>💌 Get in Touch</h2>
-      <h3 style="margin-top: -10px; color: #9c27b0;">We love ideas, feedback, and collabs!</h3>
-      <p>Questions, thoughts, or wanna team up? Drop your message below and let’s connect 👇</p>
-      <form action="/submit_contact" method="POST">
-        <input type="text" name="name" placeholder="Your Name (Optional)">
-        <input type="email" name="email" placeholder="Your Email" required>
-        <input type="text" name="subject" placeholder="Subject (Collab, Feedback, Question...)" required>
-        <textarea name="message" placeholder="Tell us what’s on your mind. Collaboration idea? Bug report? Praise? Spill it!" required></textarea>
-        <button type="submit" class="submit-btn">📨 Send It</button>
-      </form>
-    </div>
+<style>
+  body {
+    background-color: #f3e5f5;
+    font-family: 'Segoe UI', sans-serif;
+    margin: 0;
+    padding: clamp(20px, 5vw, 40px);
+    color: #4a148c;
+  }
 
-    <div class="info-section">
-      <h2>📬 Contact Info</h2>
+  .container {
+    display: flex;
+    flex-wrap: wrap;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 0 25px rgba(106, 27, 154, 0.2);
+    max-width: 1000px;
+    margin: auto;
+    overflow: hidden;
+    gap: clamp(20px, 2vw, 40px);
+  }
 
-      <div class="info-item">
-        <i class="fa fa-envelope"></i>
-        <a href="mailto:notessmasher765@gmail.com">hello@notessmasher.com</a>
-      </div>
+  .form-section, .info-section {
+    flex: 1 1 400px;
+    padding: clamp(20px, 4vw, 40px);
+  }
 
-      <div class="info-item">
-        <i class="fa fa-linkedin"></i>
-        <a href="https://www.linkedin.com/in/your-username" target="_blank">LinkedIn</a>
-      </div>
+  .form-section h2, .info-section h2 { color: #6a1b9a; margin-bottom: 20px; }
 
-      <div class="info-item">
-        <i class="fa fa-github"></i>
-        <a href="https://github.com/your-username" target="_blank">GitHub</a>
-      </div>
+  input[type="text"],
+  input[type="email"],
+  textarea {
+    width: 100%;
+    padding: clamp(10px, 2vw, 14px);
+    margin-bottom: clamp(15px, 2vw, 20px);
+    border: 1px solid #ce93d8;
+    border-radius: 10px;
+    background-color: #fdf9ff;
+  }
 
-      <div class="info-item">
-        <i class="fa fa-instagram"></i>
-        <a href="https://instagram.com/your-username" target="_blank">Instagram</a>
-      </div>
+  textarea { resize: vertical; height: 120px; }
 
-      <p><em>📣 I usually reply within 48 hours. Your message won’t disappear into the void — promise!</em></p>
-    </div>
+  .submit-btn {
+    background-color: #6a1b9a;
+    color: white;
+    border: none;
+    padding: clamp(12px, 2vw, 16px);
+    font-size: 16px;
+    border-radius: 10px;
+    cursor: pointer;
+    width: 100%;
+    transition: background-color 0.3s ease;
+  }
+
+  .submit-btn:hover { background-color: #4a148c; }
+
+  .info-section {
+    background-color: #f8eafa;
+    border-left: 4px solid #ce93d8;
+    border-radius: 0 20px 20px 0;
+  }
+
+  .info-item { margin-bottom: 25px; }
+  .info-item i { margin-right: 10px; color: #6a1b9a; }
+  .info-item a { color: #4a148c; text-decoration: none; font-weight: bold; }
+  .info-item a:hover { text-decoration: underline; }
+
+  @media (max-width: 768px) {
+    .container { flex-direction: column; }
+    .info-section {
+      border-left: none;
+      border-top: 4px solid #ce93d8;
+      border-radius: 0 0 20px 20px;
+    }
+  }
+</style>
+
+<div class="container">
+  <div class="form-section">
+    <h2>💌 Get in Touch</h2>
+    <h3 style="margin-top: -10px; color: #9c27b0;">We love ideas, feedback, and collabs!</h3>
+    <p>Questions, thoughts, or wanna team up? Drop your message below and let’s connect 👇</p>
+    <form action="/submit_contact" method="POST">
+      <input type="text" name="name" placeholder="Your Name (Optional)">
+      <input type="email" name="email" placeholder="Your Email" required>
+      <input type="text" name="subject" placeholder="Subject (Collab, Feedback, Question...)" required>
+      <textarea name="message" placeholder="Tell us what’s on your mind. Collaboration idea? Bug report? Praise? Spill it!" required></textarea>
+      <button type="submit" class="submit-btn">📨 Send It</button>
+    </form>
   </div>
 
-  <!-- Font Awesome for icons -->
-  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
-{% endblock %}
+  <div class="info-section">
+    <h2>📬 Contact Info</h2>
+    <div class="info-item">
+      <i class="fa fa-envelope"></i>
+      <a href="mailto:notessmasher765@gmail.com">hello@notessmasher.com</a>
+    </div>
+    <div class="info-item">
+      <i class="fa fa-linkedin"></i>
+      <a href="https://www.linkedin.com/in/your-username" target="_blank">LinkedIn</a>
+    </div>
+    <div class="info-item">
+      <i class="fa fa-github"></i>
+      <a href="https://github.com/your-username" target="_blank">GitHub</a>
+    </div>
+    <div class="info-item">
+      <i class="fa fa-instagram"></i>
+      <a href="https://instagram.com/your-username" target="_blank">Instagram</a>
+    </div>
+    <p><em>📣 I usually reply within 48 hours. Your message won’t disappear into the void — promise!</em></p>
+  </div>
+</div>
 
-</body>
-</html>
+<!-- Font Awesome for icons -->
+<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+
+{% endblock %}

@@ -847,6 +847,57 @@ def robots():
     return send_from_directory(current_app.static_folder, "robots.txt")
 
 # Sitemap.xml
-@routes.route("/sitemap.xml")
+@routes.route("/sitemap.xml", methods=["GET"])
 def sitemap():
-    return send_from_directory(current_app.static_folder, "sitemap.xml")
+    pages = []
+
+    # ✅ Static pages with priority
+    static_pages = {
+        "routes.aktu": 0.9,
+        "routes.home": 0.9,
+        "routes.view_notes": 0.9,
+        "routes.about": 0.6,
+        "routes.share_tips": 0.6,
+        "routes.dashboard": 0.6,
+        "routes.upload": 0.6,
+        "routes.explain": 0.6,
+        "routes.study_tips": 0.6,
+        "routes.sticky_notes": 0.6,
+        "routes.contact": 0.6
+    }
+
+    for route_name, priority in static_pages.items():
+        try:
+            pages.append({
+                "loc": url_for(route_name, _external=True),
+                "lastmod": datetime.utcnow().strftime("%Y-%m-%d"),
+                "priority": str(priority),
+                "changefreq": "weekly" if priority == 0.6 else "daily"
+            })
+        except Exception as e:
+            print(f"Error adding {route_name}: {e}")
+
+    # ✅ Dynamic AKTU Notes
+    aktu_notes = Note.query.filter_by(is_public=True, category="aktu").all()  # make sure you have a 'category' field
+    for note in aktu_notes:
+        pages.append({
+            "loc": url_for("routes.view_note", note_id=note.id, _external=True),
+            "lastmod": (note.updated_at or datetime.utcnow()).strftime("%Y-%m-%d"),
+            "priority": "0.9",
+            "changefreq": "daily"
+        })
+
+    # ✅ Other Public Notes (non-AKTU)
+    other_notes = Note.query.filter_by(is_public=True).filter(Note.category != "aktu").all()
+    for note in other_notes:
+        pages.append({
+            "loc": url_for("routes.view_note", note_id=note.id, _external=True),
+            "lastmod": (note.updated_at or datetime.utcnow()).strftime("%Y-%m-%d"),
+            "priority": "0.7",
+            "changefreq": "daily"
+        })
+
+    # ✅ Render sitemap XML
+    xml = render_template("sitemap_template.xml", pages=pages)
+    return xml, 200, {"Content-Type": "application/xml"}
+

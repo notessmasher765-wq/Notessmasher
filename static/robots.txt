@@ -1,0 +1,9 @@
+# Allow all crawlers
+User-agent: *
+Disallow: /dashboard      # Private user dashboard
+Disallow: /upload         # Upload form (we don’t want bots submitting it)
+Disallow: /login           # Login page
+Disallow: /register
+
+# Sitemap location
+Sitemap:https://notessmasher.onrender.com/sitemap.xml

@@ -1,117 +1,143 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard | StudySpark</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-  <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #f3e5f5;
-      margin: 0;
- padding: clamp(15px, 5vw, 40px);      color: #4a148c;
-    }
-
-    .dashboard-container {
-      max-width: 1100px;
-      margin: auto;
-      display: flex;
-      flex-direction: column;
-      gap: clamp(15px, 3vw, 30px);
-    }
-
-    .announcement-banner {
-      padding: clamp(10px, 2vw, 15px) clamp(15px, 3vw, 25px);
-      gap: clamp(6px, 2vw, 10px);
-      background-color: #e1bee7;
-      border-radius: 15px;
-      font-weight: bold;
-      display: flex;
-      align-items: center;
-    
-    }
-
-    .announcement-banner i {
-      color: #6a1b9a;
-    }
-
-    .dashboard-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 20px;
-    }
-
-    .card {
-      background-color: #ffffff;
-      border-radius: 15px;
-      padding: clamp(15px, 3vw, 20px);
-      box-shadow: 0 0 15px rgba(106, 27, 154, 0.1);
-    }
-
-    .card h3 {
-      margin-top: 0;
-      color: #6a1b9a;
-    }
-
-    .note-item {
-      margin-bottom: 8px;
-    }
-
-    .note-boxes {
-      display: flex;
-      gap: 15px;
-      flex-wrap: wrap;
-    }
-
-    .note-card {
-      padding: clamp(8px, 2vw, 12px) clamp(10px, 2vw, 15px);
-  font-size: clamp(0.9rem, 1.8vw, 1rem);
-      background: #f8eafa;
-      border-radius: 10px;
-      font-weight: 500;
-    }
-
-    .filter-controls input,
-    .filter-controls select {
-      width: 100%;
-      padding: 10px;
-      margin-top: 10px;
-      border-radius: 10px;
-      border: 1px solid #ce93d8;
-      background-color: #fdf9ff;
-    }
-
-    @media (max-width: 600px) {
-      .dashboard-container {
-        padding: 10px;
-      }
-    }
-  </style>
-</head>
-
-<body>
-  {% extends "base.html" %}
+{% extends "base.html" %}
 
 {% block title %}Dashboard | StudySpark{% endblock %}
 
 {% block content %}
+<style>
+  * { box-sizing: border-box; }
 
-  <div class="dashboard-container">
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #f3e5f5;
+    color: #4a148c;
+    margin: 0;
+    padding: clamp(15px, 5vw, 40px);
+  }
 
-    <!-- Mini Announcement Banner -->
-    <div class="announcement-banner">
-      <i class="fa fa-bullhorn"></i>
-      New Feature: Suggest a Feature page added! 🎉
-    </div>
+  .dashboard-container {
+    max-width: 1100px;
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    gap: clamp(15px, 3vw, 30px);
+  }
 
-    <div class="dashboard-grid">
+  /* 🔔 Announcement Banner */
+  .announcement-banner {
+    padding: clamp(10px, 2vw, 15px) clamp(15px, 3vw, 25px);
+    gap: clamp(6px, 2vw, 10px);
+    background-color: #e1bee7;
+    border-radius: 15px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+  }
 
-      <!-- Recently Viewed Notes -->
-      <div class="card">
-        <h3>📌 Recently Viewed</h3>
-        {% if recently_viewed %}
+  .announcement-banner i {
+    color: #6a1b9a;
+    animation: pulse 1.2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.1); opacity: 0.7; }
+  }
+
+  /* 🗂️ Dashboard Grid */
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+  }
+
+  /* 📦 Cards */
+  .card {
+    background-color: #ffffff;
+    border-radius: 15px;
+    padding: clamp(15px, 3vw, 20px);
+    box-shadow: 0 0 15px rgba(106, 27, 154, 0.1);
+    transition: all 0.3s ease;
+    min-height: 130px; /* keep cards neat on mobile */
+  }
+
+  .card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 18px rgba(106, 27, 154, 0.15);
+  }
+
+  .card h3 { margin-top: 0; color: #6a1b9a; }
+
+  /* 📄 Notes */
+  .note-item { margin-bottom: 8px; }
+
+  .note-boxes {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+  }
+
+  .note-card {
+    padding: clamp(8px, 2vw, 12px) clamp(10px, 2vw, 15px);
+    font-size: clamp(0.9rem, 1.8vw, 1rem);
+    background: #f8eafa;
+    border-radius: 10px;
+    font-weight: 500;
+  }
+
+  .note-card button {
+    background: none;
+    border: none;
+    color: #6a1b9a;
+    cursor: pointer;
+    font-weight: 600;
+  }
+
+  .note-card button:hover { text-decoration: underline; }
+
+  /* 🔍 Filter Controls */
+  .filter-controls input,
+  .filter-controls select {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    border-radius: 10px;
+    border: 1px solid #ce93d8;
+    background-color: #fdf9ff;
+  }
+
+  /* 📱 Mobile Adjustments */
+  @media (max-width: 768px) {
+    .dashboard-container { padding: 12px; }
+    .announcement-banner { font-size: 0.95rem; padding: 8px 12px; }
+  }
+
+  @media (max-width: 600px) {
+    .dashboard-container { padding: 10px 5px; }
+    .dashboard-grid { gap: 15px; }
+    .announcement-banner { font-size: 0.85rem; padding: 6px 10px; }
+    .filter-controls input, .filter-controls select { font-size: 0.9rem; padding: 8px; }
+  }
+
+  @media (max-width: 400px) {
+    .dashboard-grid { grid-template-columns: 1fr; } /* stack vertically on tiny screens */
+  }
+</style>
+
+<div class="dashboard-container">
+
+  <!-- 🔔 Announcement Banner -->
+  <div class="announcement-banner">
+    <i class="fa fa-bullhorn"></i>
+    New Feature: Suggest a Feature page added! 🎉
+  </div>
+
+  <!-- 🗂️ Dashboard Grid -->
+  <div class="dashboard-grid">
+
+    <!-- 📌 Recently Viewed -->
+    <div class="card">
+      <h3>📌 Recently Viewed</h3>
+      {% if recently_viewed %}
         {% for note in recently_viewed %}
         <div class="note-item">
           • <a href="{{ url_for('routes.view_note_page', note_id=note.id) }}" style="color:#6a1b9a; text-decoration:none;">
@@ -119,81 +145,71 @@
           </a> – {{ note.subject }}
         </div>
         {% endfor %}
-
-        {% else %}
+      {% else %}
         <div class="note-item">No notes viewed recently.</div>
-        {% endif %}
+      {% endif %}
+    </div>
 
-      </div>
+    <!-- 🔍 Filter + Sort -->
+    <div class="card filter-controls">
+      <h3>🔍 Filter & Sort</h3>
+      <input type="text" placeholder="Search notes..." />
+      <select>
+        <option>Filter: All</option>
+        <option>My Notes</option>
+        <option>Public Notes</option>
+      </select>
+      <select>
+        <option>Sort By: Latest</option>
+        <option>Oldest First</option>
+        <option>Most Downloaded</option>
+      </select>
+    </div>
 
-      <!-- Filter + Sort -->
-      <div class="card filter-controls">
-        <h3>🔍 Filter & Sort</h3>
-        <input type="text" placeholder="Search notes...">
-        <select>
-          <option>Filter: All</option>
-          <option>My Notes</option>
-          <option>Public Notes</option>
-        </select>
-        <select>
-          <option>Sort By: Latest</option>
-          <option>Oldest First</option>
-          <option>Most Downloaded</option>
-        </select>
-      </div>
-
-      <!-- Saved Notes -->
-      <div class="card">
-        <h3>⭐ Saved Notes</h3>
-        {% if saved_notes %}
+    <!-- ⭐ Saved Notes -->
+    <div class="card">
+      <h3>⭐ Saved Notes</h3>
+      {% if saved_notes %}
         {% for saved in saved_notes %}
         <div class="note-item">• {{ saved.note.title }} – {{ saved.note.subject }}</div>
         {% endfor %}
-        {% else %}
+      {% else %}
         <div class="note-item">No saved notes yet.</div>
-        {% endif %}
-      </div>
-
-
-      <!-- Upload Stats -->
-      <div class="card">
-        <h3>📈 Upload Stats</h3>
-        <div>📝 Notes Uploaded: <strong>{{ upload_count }}</strong></div>
-        <div>⬇️ Downloads: <strong>{{ download_count }}</strong></div>
-        <div>🌍 Public Notes Available: <strong>{{ public_view_count }}</strong></div>
-      </div>
-
-
+      {% endif %}
     </div>
 
-    <!-- Latest Public Notes (dynamic with save button) -->
+    <!-- 📈 Upload Stats -->
     <div class="card">
-      <h3>🌐 Latest Public Notes</h3>
-      <div class="note-boxes">
+      <h3>📈 Upload Stats</h3>
+      <div>📝 Notes Uploaded: <strong>{{ upload_count }}</strong></div>
+      <div>⬇️ Downloads: <strong>{{ download_count }}</strong></div>
+      <div>🌍 Public Notes Available: <strong>{{ public_view_count }}</strong></div>
+    </div>
+
+  </div>
+
+  <!-- 🌐 Latest Public Notes -->
+  <div class="card">
+    <h3>🌐 Latest Public Notes</h3>
+    <div class="note-boxes">
+      {% if public_notes %}
         {% for note in public_notes %}
         <div class="note-card">
           {{ note.title }} – {{ note.subject }}
           <form action="{{ url_for('save_note', note_id=note.id) }}" method="POST" style="display:inline;">
-            <button type="submit" style="background:none; border:none; color:#6a1b9a; cursor:pointer;">⭐ Save</button>
+            <button type="submit">⭐ Save</button>
           </form>
         </div>
         {% endfor %}
-        {% if not public_notes %}
+      {% else %}
         <div class="note-card">No public notes available.</div>
-        {% endif %}
-      </div>
+      {% endif %}
     </div>
-
-
   </div>
 
-  <!-- Font Awesome for icons -->
-  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</div>
+
+<!-- Font Awesome for icons -->
+<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+
 {% endblock %}
-  
-</body>
-
-</html>
-
-
-<!--  NEWCOM649 -->
