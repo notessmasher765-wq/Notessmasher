@@ -172,103 +172,88 @@
     }
 </style>
 <script>
-// ====== Hamburger Menu Toggle ======
-function toggleMenu() {
-    const navLinks = document.getElementById("navLinks");
-    const menuIcon = document.querySelector(".menu-icon");
-    navLinks.classList.toggle("show");
-    menuIcon.textContent = navLinks.classList.contains("show") ? "✖" : "☰";
-}
+    // Toggle mobile menu + hamburger icon
+    function toggleMenu() {
+        const navLinks = document.getElementById("navLinks");
+        const menuIcon = document.querySelector(".menu-icon");
 
-// ====== Mobile Dropdown Toggle ======
-const navLinks = document.querySelectorAll('#navLinks li > a');
+        navLinks.classList.toggle("show");
 
-navLinks.forEach(link => {
-    link.addEventListener('click', function(e) {
+        // Toggle icon between ☰ and ✖
+        if (navLinks.classList.contains("show")) {
+            menuIcon.textContent = "✖";
+        } else {
+            menuIcon.textContent = "☰";
+        }
+    }
+
+    // Dropdown toggle for mobile
+    function toggleDropdown(e) {
+        e.preventDefault();
         const parentLi = e.target.closest("li");
-        const dropdown = parentLi.querySelector(".dropdown");
+        parentLi.classList.toggle("active");
+    }
 
-        if (!dropdown) return; // Ignore links with no dropdown
+    // Search logic
+    const searchInput = document.getElementById('noteSearch');
+    const resultsDiv = document.getElementById('searchResults');
 
-        e.preventDefault(); // Prevent default link action
+    if (searchInput) {
+        searchInput.addEventListener('input', () => {
+            const query = searchInput.value.trim();
+            resultsDiv.innerHTML = '';
 
-        // Close other dropdowns
-        document.querySelectorAll('#navLinks li.active').forEach(li => {
-            if (li !== parentLi) li.classList.remove('active');
+            if (query) {
+                resultsDiv.style.display = 'block';
+                resultsDiv.innerHTML = '<div style="padding:8px; color:#666;">Searching...</div>';
+
+                fetch(`/search_notes?q=${encodeURIComponent(query)}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        resultsDiv.innerHTML = '';
+                        if (data.length === 0) {
+                            resultsDiv.innerHTML = '<div style="padding:8px; color:#666;">No results found</div>';
+                        } else {
+                            data.forEach(n => {
+                                const div = document.createElement('div');
+                                div.textContent = n.title;
+                                div.style.padding = '8px';
+                                div.style.cursor = 'pointer';
+                                div.addEventListener('click', () => {
+                                    window.location.href = `/view_notes?search=${encodeURIComponent(n.title)}`;
+                                });
+                                resultsDiv.appendChild(div);
+                            });
+                        }
+                    }).catch(err => {
+                        console.error(err);
+                        resultsDiv.innerHTML = '<div style="padding:8px; color:red;">Error fetching results</div>';
+                    });
+            } else {
+                resultsDiv.style.display = 'none';
+            }
         });
 
-        // Toggle this dropdown
-        parentLi.classList.toggle('active');
-    });
-});
-
-// ====== Close dropdowns when clicking outside ======
-document.addEventListener('click', function(e) {
-    const nav = document.querySelector('nav');
-    if (!nav.contains(e.target)) {
-        document.querySelectorAll('#navLinks li.active').forEach(li => li.classList.remove('active'));
-    }
-});
-
-// ====== Search Logic ======
-const searchInput = document.getElementById('noteSearch');
-const resultsDiv = document.getElementById('searchResults');
-
-if (searchInput) {
-    searchInput.addEventListener('input', () => {
-        const query = searchInput.value.trim();
-        resultsDiv.innerHTML = '';
-
-        if (query) {
-            resultsDiv.style.display = 'block';
-            resultsDiv.innerHTML = '<div style="padding:8px; color:#666;">Searching...</div>';
-
-            fetch(`/search_notes?q=${encodeURIComponent(query)}`)
-                .then(res => res.json())
-                .then(data => {
-                    resultsDiv.innerHTML = '';
-                    if (data.length === 0) {
-                        resultsDiv.innerHTML = '<div style="padding:8px; color:#666;">No results found</div>';
-                    } else {
-                        data.forEach(n => {
-                            const div = document.createElement('div');
-                            div.textContent = n.title;
-                            div.style.padding = '8px';
-                            div.style.cursor = 'pointer';
-                            div.addEventListener('click', () => {
-                                window.location.href = `/view_notes?search=${encodeURIComponent(n.title)}`;
-                            });
-                            resultsDiv.appendChild(div);
-                        });
-                    }
-                }).catch(err => {
-                    console.error(err);
-                    resultsDiv.innerHTML = '<div style="padding:8px; color:red;">Error fetching results</div>';
-                });
-        } else {
-            resultsDiv.style.display = 'none';
-        }
-    });
-
-    // Redirect on Enter
-    searchInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            const query = searchInput.value.trim();
-            if (query) {
-                window.location.href = `/view_notes?search=${encodeURIComponent(query)}`;
+        // Redirect on Enter key
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const query = searchInput.value.trim();
+                if (query) {
+                    window.location.href = `/view_notes?search=${encodeURIComponent(query)}`;
+                }
             }
-        }
-    });
+        });
 
-    // Hide results when clicking outside
-    document.addEventListener('click', (e) => {
-        if (!searchInput.contains(e.target) && !resultsDiv.contains(e.target)) {
-            resultsDiv.style.display = 'none';
-        }
-    });
-}
+        // Hide results when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!searchInput.contains(e.target) && !resultsDiv.contains(e.target)) {
+                resultsDiv.style.display = 'none';
+            }
+        });
+    }
 </script>
+
 
 
 
@@ -286,7 +271,7 @@ if (searchInput) {
         <li><a href="{{ url_for('routes.upload') }}">Upload Notes</a></li>
 
         <li>
-            <a href="#">Notes ▼</a>
+            <a href="#" onclick="toggleDropdown(event)">Notes ▼</a>
             <div class="dropdown">
                 <a href="{{ url_for('routes.my_notes') }}">My Notes</a>
                 <a href="{{ url_for('routes.view_notes') }}">View Notes</a>
@@ -298,7 +283,7 @@ if (searchInput) {
         <li><a href="{{ url_for('routes.auth') }}">Login / Register</a></li>
 
         <li>
-            <a href="#">Contact ▼</a>
+            <a href="#" onclick="toggleDropdown(event)">Contact ▼</a>
             <div class="dropdown">
                 <a href="{{ url_for('routes.contact') }}">Collaboration</a>
                 <a href="{{ url_for('routes.about_us') }}">About Us</a>
