@@ -901,3 +901,7 @@ def sitemap():
     xml = render_template("sitemap_template.xml", pages=pages)
     return xml, 200, {"Content-Type": "application/xml"}
 
+
+@app.route("/googlef76d8f642f530023.html")
+def google_verification():
+    return send_from_directory(os.path.join(app.root_path, 'static'), 'googlef76d8f642f530023.html')
