@@ -19,7 +19,7 @@
 
     <!-- AKTU (PYQ + Notes Section) -->
     <url>
-        <loc>https://www.yourdomain.com/aktu</loc>
+        <loc>https://notessmasher.onrender.com/aktu</loc>
         <lastmod>2025-09-28</lastmod>
         <changefreq>daily</changefreq>
         <priority>1.0</priority>
@@ -27,7 +27,7 @@
 
     <!-- View Notes -->
     <url>
-        <loc>https://www.yourdomain.com/view-notes</loc>
+        <loc>https://notessmasher.onrender.com/view-notes</loc>
         <lastmod>2025-09-28</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.9</priority>
@@ -35,7 +35,7 @@
 
     <!-- Dashboard -->
     <url>
-        <loc>https://www.yourdomain.com/dashboard</loc>
+        <loc>https://notessmasher.onrender.com/dashboard</loc>
         <lastmod>2025-09-28</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.6</priority>
@@ -43,7 +43,7 @@
 
     <!-- Upload Notes -->
     <url>
-        <loc>https://www.yourdomain.com/upload</loc>
+        <loc>https://notessmasher.onrender.com/upload</loc>
         <lastmod>2025-09-28</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.6</priority>
@@ -51,7 +51,7 @@
 
     <!-- Explain to Learn -->
     <url>
-        <loc>https://www.yourdomain.com/explain</loc>
+        <loc>https://notessmasher.onrender.com/explain</loc>
         <lastmod>2025-09-28</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.5</priority>
@@ -59,7 +59,7 @@
 
     <!-- Study Tips -->
     <url>
-        <loc>https://www.yourdomain.com/tips</loc>
+        <loc>https://notessmasher.onrender.com/tips</loc>
         <lastmod>2025-09-28</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.4</priority>
@@ -67,7 +67,7 @@
 
     <!-- Sticky Notes -->
     <url>
-        <loc>https://www.yourdomain.com/sticky-notes</loc>
+        <loc>https://notessmasher.onrender.com/sticky-notes</loc>
         <lastmod>2025-09-28</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.4</priority>
@@ -75,7 +75,7 @@
 
     <!-- Contact -->
     <url>
-        <loc>https://www.yourdomain.com/contact</loc>
+        <loc>https://notessmasher.onrender.com/contact</loc>
         <lastmod>2025-09-28</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.3</priority>

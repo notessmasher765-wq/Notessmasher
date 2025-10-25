@@ -846,18 +846,20 @@ def view_question(question_id):
 def robots():
     return send_from_directory(current_app.static_folder, "robots.txt")
 
-# Sitemap.xml
+
+
 @routes.route("/sitemap.xml", methods=["GET"])
 def sitemap():
+    from xml.sax.saxutils import escape
+
     pages = []
 
-    # ✅ Static pages with priority
+    # ✅ Static pages
     static_pages = {
-        "routes.aktu": 0.9,
         "routes.home": 0.9,
+        "routes.about_us": 0.6,
+        "routes.aktu": 0.9,
         "routes.view_notes": 0.9,
-        "routes.about": 0.6,
-        "routes.share_tips": 0.6,
         "routes.dashboard": 0.6,
         "routes.upload": 0.6,
         "routes.explain": 0.6,
@@ -877,29 +879,50 @@ def sitemap():
         except Exception as e:
             print(f"Error adding {route_name}: {e}")
 
-    # ✅ Dynamic AKTU Notes
-    aktu_notes = Note.query.filter_by(is_public=True, category="aktu").all()  # make sure you have a 'category' field
-    for note in aktu_notes:
-        pages.append({
-            "loc": url_for("routes.view_note", note_id=note.id, _external=True),
-            "lastmod": (note.updated_at or datetime.utcnow()).strftime("%Y-%m-%d"),
-            "priority": "0.9",
-            "changefreq": "daily"
-        })
+    # ✅ Dynamic AKTU notes
+    try:
+        aktu_notes = Note.query.filter_by(is_public=True, note_type="aktu_pyq").all()
+        for note in aktu_notes:
+            pages.append({
+                "loc": url_for("routes.view_note_page", note_id=note.id, _external=True),
+                "lastmod": (note.updated_at or note.created_at or datetime.utcnow()).strftime("%Y-%m-%d"),
+                "priority": "0.9",
+                "changefreq": "daily"
+            })
+    except Exception as e:
+        print("Error fetching AKTU notes:", e)
 
-    # ✅ Other Public Notes (non-AKTU)
-    other_notes = Note.query.filter_by(is_public=True).filter(Note.category != "aktu").all()
-    for note in other_notes:
-        pages.append({
-            "loc": url_for("routes.view_note", note_id=note.id, _external=True),
-            "lastmod": (note.updated_at or datetime.utcnow()).strftime("%Y-%m-%d"),
-            "priority": "0.7",
-            "changefreq": "daily"
-        })
+    # ✅ Other public notes
+    try:
+        other_notes = Note.query.filter_by(is_public=True).filter(Note.note_type != "aktu_pyq").all()
+        for note in other_notes:
+            pages.append({
+                "loc": url_for("routes.view_note_page", note_id=note.id, _external=True),
+                "lastmod": (note.updated_at or note.created_at or datetime.utcnow()).strftime("%Y-%m-%d"),
+                "priority": "0.7",
+                "changefreq": "daily"
+            })
+    except Exception as e:
+        print("Error fetching other notes:", e)
 
-    # ✅ Render sitemap XML
-    xml = render_template("sitemap_template.xml", pages=pages)
-    return xml, 200, {"Content-Type": "application/xml"}
+    # Build XML manually
+    xml_items = ""
+    for page in pages:
+        xml_items += f"""
+    <url>
+        <loc>{escape(page['loc'])}</loc>
+        <lastmod>{page['lastmod']}</lastmod>
+        <changefreq>{page['changefreq']}</changefreq>
+        <priority>{page['priority']}</priority>
+    </url>"""
+
+    xml_output = f"""<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+{xml_items}
+</urlset>"""
+
+    return xml_output, 200, {"Content-Type": "application/xml"}
+
 
 
 @routes.route('/googlef76d8f642f530023.html')
