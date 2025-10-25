@@ -3,7 +3,7 @@
 
     <!-- Home -->
     <url>
-        <loc>https://www.yourdomain.com/</loc>
+        <loc>https://notessmasher.onrender.com/</loc>
         <lastmod>2025-09-28</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.7</priority>
@@ -11,7 +11,7 @@
 
     <!-- About -->
     <url>
-        <loc>https://www.yourdomain.com/about</loc>
+        <loc>https://notessmasher.onrender.com/about</loc>
         <lastmod>2025-09-28</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.4</priority>
