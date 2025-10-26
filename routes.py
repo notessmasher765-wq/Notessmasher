@@ -1,38 +1,23 @@
 import os
 import random
-import uuid
+import uuid , platform
 from datetime import datetime
+import docx
 from flask import (
     Blueprint, render_template, redirect, url_for, request,
     flash, send_from_directory, jsonify  , current_app 
 )
 from flask_login import  login_required , login_user, logout_user, current_user
 from werkzeug.utils import secure_filename
-from flask_login import current_user
+
 from models import db
 from flask_dance.contrib.google import google
 from models import User , Note ,AKTU , StickyNote , StudyTip , Explanation , SavedNote , ViewedNote , FeatureSuggestion , Feedback , Question , Answer 
 
 from werkzeug.security import generate_password_hash, check_password_hash
-from extensions import db
+from extensions import db , bcrypt
 from pdf2image import convert_from_path
-
-
-
-
-
-routes = Blueprint("routes", __name__)
-UPLOAD_FOLDER = "uploaded_notes"
-
-
-
-
-# extensions.py
-from extensions import db, bcrypt
-
-
-
-
+from PyPDF2 import PdfReader
 
 
 
@@ -189,21 +174,26 @@ def view_note(note_id):
     return render_template("view_notes.html", note=note)
 
 # ------------------ UPLOAD ------------------
-import os
-import uuid
-from werkzeug.utils import secure_filename
-from flask import request, redirect, url_for, flash, render_template, send_from_directory, current_app
-from flask_login import current_user
+
+
+
 
 # Folders
 UPLOAD_FOLDER_NOTES = os.path.join("static", "uploads", "notes")
 UPLOAD_FOLDER_THUMBNAILS = os.path.join("static", "uploads", "thumbnails")
 
+
+
+from pdf2image import convert_from_path
+from PyPDF2 import PdfReader
+import docx
+
 @routes.route("/upload", methods=["GET", "POST"])
 def upload():
+    ALLOWED_EXTENSIONS = {'pdf', 'doc', 'docx', 'txt', 'png', 'jpg', 'jpeg'}
+
     def allowed_file(filename):
-        allowed_extensions = {'pdf', 'doc', 'docx', 'txt', 'png', 'jpg', 'jpeg'}
-        return '.' in filename and filename.rsplit('.', 1)[1].lower() in allowed_extensions
+        return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
     if request.method == "POST":
         if not current_user.is_authenticated:
@@ -219,119 +209,73 @@ def upload():
         typed_content = request.form.get("typed_content", "").strip()
         is_public = 'is_public' in request.form
 
-        file = request.files.get("file")  # ✅ only once
-
-        # --- Validate required fields ---
+        file = request.files.get("file")
         if not title or not file or file.filename == "":
             flash("Please provide a title and upload a file!", "danger")
             return redirect(request.url)
+        if not allowed_file(file.filename):
+            flash("File type not allowed!", "danger")
+            return redirect(request.url)
 
-        file_name = None
-        file_url = None
+        # --- Save file ---
+        filename = secure_filename(file.filename)
+        extension = filename.rsplit('.', 1)[1].lower()
+        upload_folder = UPLOAD_FOLDER_NOTES if extension in ['pdf', 'doc', 'docx', 'txt'] else UPLOAD_FOLDER_THUMBNAILS
+        os.makedirs(upload_folder, exist_ok=True)
+        file_path = os.path.join(upload_folder, filename)
+        file.save(file_path)
+
+        # --- Automatic external URL ---
+        folder_name = 'notes' if extension in ['pdf','doc','docx','txt'] else 'thumbnails'
+        file_url = url_for('static', filename=f'uploads/{folder_name}/{filename}', _external=True)
+
+        # --- Thumbnail ---
         thumbnail_url = "/static/defaults/file_icon.png"
-
-        if allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            extension = filename.rsplit('.', 1)[1].lower()
-
-            # --- Choose upload folder ---
-            if extension in ['pdf', 'doc', 'docx', 'txt']:
-                upload_folder = UPLOAD_FOLDER_NOTES
-            else:  # jpg, jpeg, png
-                upload_folder = UPLOAD_FOLDER_THUMBNAILS
-
-            os.makedirs(upload_folder, exist_ok=True)
-            file_path = os.path.join(upload_folder, filename)
-            file.save(file_path)
-
-            # --- Browser-friendly path ---
-            file_name = filename
-            file_url = file_path.replace("static/", "/static/").replace("\\", "/")
-
-          # --- Thumbnail logic ---
-            if extension in ["jpg", "jpeg", "png"]:
-                thumbnail_url = file_url
-            
-            elif extension == "pdf":
-               os.makedirs(UPLOAD_FOLDER_THUMBNAILS, exist_ok=True)
-           
-            # OS-aware Poppler path
-            import platform
-            if platform.system() == "Windows":
-                poppler_path = r"C:\Users\Lenovo\Downloads\Release-24.08.0-0\poppler-24.08.0\Library\bin"
-                preview = convert_from_path(file_path, first_page=1, last_page=1, poppler_path=poppler_path)
-            else:  # Linux / Render
-                preview = convert_from_path(file_path, first_page=1, last_page=1)
-
-            # This part must be OUTSIDE the if/else so it runs on both Windows & Linux
+        if extension in ["jpg", "jpeg", "png"]:
+            thumbnail_url = file_url
+        elif extension == "pdf":
+            os.makedirs(UPLOAD_FOLDER_THUMBNAILS, exist_ok=True)
+            poppler_path = r"C:\Users\Lenovo\Downloads\Release-24.08.0-0\poppler-24.08.0\Library\bin" if platform.system() == "Windows" else None
+            preview = convert_from_path(file_path, first_page=1, last_page=1, poppler_path=poppler_path)
             thumb_name = f"{uuid.uuid4()}.jpg"
             thumb_path = os.path.join(UPLOAD_FOLDER_THUMBNAILS, thumb_name)
             preview[0].save(thumb_path, "JPEG")
-            thumbnail_url = f"/static/uploads/thumbnails/{thumb_name}"
+            thumbnail_url = url_for('static', filename=f'uploads/thumbnails/{thumb_name}', _external=True)
 
+        # --- Page count ---
+        pages = 1
+        try:
+            if extension == "pdf":
+                reader = PdfReader(file_path)
+                pages = len(reader.pages)
+            elif extension == "docx":
+                doc = docx.Document(file_path)
+                word_count = sum(len(p.text.split()) for p in doc.paragraphs)
+                pages = max(1, word_count // 300)
+            elif extension == "txt":
+                with open(file_path, "r", encoding="utf-8") as f:
+                    words = f.read().split()
+                    pages = max(1, len(words) // 300)
+        except Exception as e:
+            print("Page count error:", e)
 
-
-# --- Count pages based on file type ---
-            ext = filename.rsplit('.', 1)[1].lower()
-            pages = None
-
-            if ext == "pdf":
-                try:
-                    reader = PdfReader(file_path)
-                    pages = len(reader.pages)
-                except Exception as e:
-                    print("PDF page count error:", e)
-
-            elif ext == "docx":
-                try:
-                    doc = docx.Document(file_path)
-                    # Word doesn’t have real “pages”, so we’ll estimate:
-                    word_count = sum(len(p.text.split()) for p in doc.paragraphs)
-                    pages = max(1, word_count // 300)  # ~300 words = 1 page
-                except Exception as e:
-                    print("DOCX page count error:", e)
-
-            elif ext == "txt":
-                try:
-                    with open(file_path, "r", encoding="utf-8") as f:
-                        words = f.read().split()
-                        pages = max(1, len(words) // 300)
-                except Exception as e:
-                    print("TXT page count error:", e)
-
-            elif ext in ["jpg", "jpeg", "png"]:
-                pages = 1
-
-
-            if not pages:
-                pages = 1
-                print("Final pages value:", pages)
-
-
-
-            if not file_url:
-                file_url = file_path.replace("static/", "/static/").replace("\\", "/")
-
-
-       # --- Save note to DB ---
+        # --- Save note in DB ---
         new_note = Note(
-        user_id=current_user.id,
-        title=title,
-        course=course or None,
-        subject=subject or None,
-        session=session_val or None,
-        note_type=note_type or None,
-        typed_content=typed_content or None,
-        year=session_val or None,
-        file_name=file_name,
-        file_path=file_path.replace("static/", "/static/").replace("\\", "/"),  # absolute storage path
-        file_url=file_url,  # ✅ now saving proper file_url
-        is_public=is_public,
-        thumbnail_url=thumbnail_url,
-        pages=pages
-                     )
-
-
+            user_id=current_user.id,
+            title=title,
+            course=course or None,
+            subject=subject or None,
+            session=session_val or None,
+            note_type=note_type or None,
+            typed_content=typed_content or None,
+            year=session_val or None,
+            file_name=filename,
+            file_path=file_path.replace("\\", "/"),
+            file_url=file_url,  # ✅ fully automatic
+            thumbnail_url=thumbnail_url,
+            pages=pages,
+            is_public=is_public
+        )
         db.session.add(new_note)
         db.session.commit()
         flash("Note uploaded successfully!", "success")

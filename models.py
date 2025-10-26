@@ -5,84 +5,56 @@ from datetime import datetime
 db = SQLAlchemy()
 
 class Note(db.Model):
+    __tablename__ = 'note'
     __table_args__ = {'extend_existing': True}
+
     id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False)
     title = db.Column(db.String(150), nullable=False)
     course = db.Column(db.String(100), nullable=True)
     note_type = db.Column(db.String(50), nullable=True)
-    subject = db.Column(db.String(100))
-    session = db.Column(db.String(20))
-    typed_content = db.Column(db.Text)
-    file_name = db.Column(db.String(200))  # Display name
-    file_path = db.Column(db.String(300))  # Actual location (like static/uploads/xyz.pdf)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False)
+    subject = db.Column(db.String(100), nullable=True)
+    session = db.Column(db.String(20), nullable=True)
+    typed_content = db.Column(db.Text, nullable=True)
+    year = db.Column(db.String(20), nullable=True)  # e.g., "1st Year"
+    
+    file_name = db.Column(db.String(200), nullable=False)       # Original file name
+    file_path = db.Column(db.String(300), nullable=False)       # Local storage path
+    file_url = db.Column(db.String(500), nullable=False)        # Full external URL
+    thumbnail_url = db.Column(db.String(500), nullable=True)    # Thumbnail / preview image
+    pages = db.Column(db.Integer, nullable=True)                # Total pages in the document
+
     is_public = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    bio = db.Column(db.Text)
-    profile_image = db.Column(db.String(200))
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    file_url = db.Column(db.String(300), nullable=False)  # Path to uploaded file
-    thumbnail_url = db.Column(db.String(300), nullable=True)  # For preview image/thumbnail
-    pages = db.Column(db.Integer, nullable=True)  # Total pages in the PDF/Doc
-
 
     # Relationships
-    user = db.relationship("User", backref="notes") 
-    notes = db.relationship('Note', backref='author', lazy=True)
-    explanations = db.relationship('Explanation', backref='user', lazy=True)
-    saved_notes = db.relationship('SavedNote', backref='user', lazy=True)
-    viewed_notes = db.relationship('ViewedNote', backref='user', lazy=True)
+    user = db.relationship("User", backref="notes")
+    saved_by_users = db.relationship('SavedNote', backref='note', lazy=True)
+    viewed_by_users = db.relationship('ViewedNote', backref='note', lazy=True)
+    explanations = db.relationship('Explanation', backref='note', lazy=True)
 
     def __repr__(self):
-        return f"<User {self.name}>"
-    
-from extensions import db  # wherever db is defined
+        return f"<Note {self.title}>"
 
-class User(db.Model , UserMixin):
+# Example User model for context
+class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(50), nullable=False) 
+    name = db.Column(db.String(50), nullable=False)
     username = db.Column(db.String(50), unique=True, nullable=True)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(200), nullable=True)
     phone = db.Column(db.String(15), unique=True, nullable=True)
     user_type = db.Column(db.String(20), nullable=False)
-    course = db.Column(db.String(100))
-    school_class = db.Column(db.String(100))
-    def __repr__(self):
-        return f'<User {self.username}>'
-
-
-
-
-class Note(db.Model):
-    __table_args__ = {'extend_existing': True} 
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(150), nullable=False)
     course = db.Column(db.String(100), nullable=True)
-    note_type = db.Column(db.String(50), nullable=True)
-    subject = db.Column(db.String(100))
-    session = db.Column(db.String(20))
-    typed_content = db.Column(db.Text)
-    file_name = db.Column(db.String(200))  # Display name
-    file_path = db.Column(db.String(300))  # Actual location (like static/uploads/xyz.pdf)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False)
-    is_public = db.Column(db.Boolean, default=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    bio = db.Column(db.Text)
-    profile_image = db.Column(db.String(200)) 
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow) 
-    file_url = db.Column(db.String(300), nullable=False) # Path to uploaded file 
-    thumbnail_url = db.Column(db.String(300), nullable=True) # For preview image/thumbnail 
-    pages = db.Column(db.Integer, nullable=True) # Total pages in the PDF/Doc
-    year = db.Column(db.String(20))  # e.g., "1st Year", "2nd Year"
-
-
-
-    # Relationships
-    saved_by_users = db.relationship('SavedNote', backref='note', lazy=True)
-    viewed_by_users = db.relationship('ViewedNote', backref='note', lazy=True)
+    school_class = db.Column(db.String(100), nullable=True)
 
     def __repr__(self):
+        return f"<User {self.username}>"
+
+
+
+
         return f"<Note {self.title}>"
 
 class SavedNote(db.Model):
