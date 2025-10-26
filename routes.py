@@ -839,6 +839,7 @@ def view_question(question_id):
 
     return render_template("question.html", question=question, answers=answers)
 
+ #-----------------------------------------------------------------------------------------------------------------------------
 
 
 # Robots.txt
@@ -846,6 +847,7 @@ def view_question(question_id):
 def robots():
     return send_from_directory(current_app.static_folder, "robots.txt")
 
+ #-----------------------------------------------------------------------------------------------------------------------------
 
 
 @routes.route("/sitemap.xml", methods=["GET"])
@@ -923,6 +925,7 @@ def sitemap():
 
     return xml_output, 200, {"Content-Type": "application/xml"}
 
+ #-----------------------------------------------------google verification-------------------------------------------------------
 
 
 @routes.route('/googlef76d8f642f530023.html')
@@ -930,10 +933,68 @@ def google_verify():
     return send_from_directory('.', 'googlef76d8f642f530023.html')
 
 
-@routes.route("/cheatsheet")
+
+ #-----------------------------------cheatsheet-----------------------------------------------------------------------------------------
+
+
+
+# Allowed file extensions
+ALLOWED_EXTENSIONS = {'pdf', 'jpg', 'jpeg', 'png'}
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+# Cheatsheet page
+@routes.route("/cheatsheet", methods=["GET", "POST"])
 def cheatsheet():
-    # Fetch all notes you want to show in Cheat Sheet
-    # You can filter by type or category if needed
+    if request.method == "POST":
+        name = request.form.get("name")
+        file = request.files.get("file")
+        drive_link = request.form.get("drive_link")
+
+        if not name:
+            flash("Please provide a name for your note!", "error")
+            return redirect(url_for('routes.cheatsheet'))
+
+        # If file is uploaded
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            save_path = os.path.join('static/uploads', filename)
+            file.save(save_path)
+            file_type = "image" if filename.lower().endswith(('jpg', 'jpeg', 'png')) else "pdf"
+
+            new_note = Note(
+                name=name,
+                file_name=filename,
+                pdf_link=None,
+                note_type="cheatsheet",
+                type=file_type,
+                created_at=datetime.utcnow()
+            )
+            db.session.add(new_note)
+            db.session.commit()
+            flash("File uploaded successfully!", "success")
+            return redirect(url_for('routes.cheatsheet'))
+
+        # If Google Drive link is provided
+        elif drive_link:
+            new_note = Note(
+                name=name,
+                file_name=None,
+                pdf_link=drive_link,
+                note_type="cheatsheet",
+                type="pdf",
+                created_at=datetime.utcnow()
+            )
+            db.session.add(new_note)
+            db.session.commit()
+            flash("Link added successfully!", "success")
+            return redirect(url_for('routes.cheatsheet'))
+
+        else:
+            flash("Please upload a valid file or paste a Google Drive link.", "error")
+            return redirect(url_for('routes.cheatsheet'))
+
+    # GET request: fetch all notes
     notes = Note.query.filter_by(note_type="cheatsheet").order_by(Note.created_at.desc()).all()
-    
     return render_template("cheatsheets.html", notes=notes)

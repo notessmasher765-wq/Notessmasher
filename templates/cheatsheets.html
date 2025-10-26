@@ -2,116 +2,132 @@
 
 {% block content %}
 <style>
-    body {
-        background-color: #f0eef6;
-        color: #333;
-        font-family: Arial, sans-serif;
-        margin: 0;
-        padding: 20px;
-    }
-    h1 {
-        color: #6a5acd;
-        border-bottom: 2px solid #b5a9df;
-        padding-bottom: 10px;
-        margin-bottom: 20px;
-    }
-    p {
-        color: #584a72;
-        line-height: 1.6;
-    }
-    ul {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-    }
-    li {
-        background-color: #e6e6fa;
-        margin-bottom: 15px;
-        padding: 15px;
-        border-radius: 8px;
-        box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        font-size: 1.1em;
-        color: #3a2d52;
-        flex-wrap: wrap;
-    }
-    .note-info {
-        flex: 1 1 70%;
-    }
-    .note-actions {
-        display: flex;
-        gap: 10px;
-        flex: 1 1 25%;
-        justify-content: flex-end;
-    }
-    .note-meta {
-        font-size: 0.9em;
-        color: #6b5f8c;
-        margin-top: 5px;
-    }
-    a, button {
-        color: #7957d5;
-        text-decoration: none;
-        font-weight: bold;
-        padding: 5px 10px;
-        border: 1px solid #7957d5;
-        border-radius: 5px;
-        transition: background-color 0.3s, color 0.3s;
-        cursor: pointer;
-        background: none;
-    }
-    a:hover, button:hover {
-        background-color: #7957d5;
-        color: white;
-        border-color: #5e43a8;
-    }
-    #pdfContainer {
-        margin-top: 20px;
-        display: none;
-    }
+body {
+    background-color: #f0eef6;
+    color: #333;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+}
+h1 {
+    color: #6a5acd;
+    border-bottom: 2px solid #b5a9df;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+form {
+    margin-bottom: 30px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+input[type="text"], input[type="file"], input[type="url"] {
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 1em;
+}
+button {
+    color: #7957d5;
+    font-weight: bold;
+    padding: 8px 15px;
+    border: 1px solid #7957d5;
+    border-radius: 5px;
+    background: none;
+    cursor: pointer;
+    transition: 0.3s;
+}
+button:hover {
+    background-color: #7957d5;
+    color: white;
+    border-color: #5e43a8;
+}
+ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+li {
+    background-color: #e6e6fa;
+    margin-bottom: 15px;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    font-size: 1.1em;
+    color: #3a2d52;
+}
+.note-info { flex: 1 1 70%; }
+.note-actions { display: flex; gap: 10px; flex: 1 1 25%; justify-content: flex-end; }
+.note-meta { font-size: 0.9em; color: #6b5f8c; margin-top: 5px; }
+#pdfContainer { margin-top: 20px; display: none; }
+img { max-width: 200px; border-radius: 5px; margin-top: 10px; }
 </style>
 
 <h1>Cheat Sheet</h1>
+
+<!-- Upload Form -->
+<form action="{{ url_for('routes.cheatsheet') }}" method="POST" enctype="multipart/form-data">
+    <input type="text" name="name" placeholder="Enter name for file or link" required>
+    <input type="file" name="file">
+    <input type="url" name="drive_link" placeholder="Paste Google Drive link">
+    <button type="submit">Upload</button>
+</form>
+
 <p>Click a note to view or download:</p>
 
 <ul>
     {% for note in notes %}
     <li>
         <div class="note-info">
-            <strong>{{ note.title }}</strong>
+            <strong>{{ note.name }}</strong>
             <div class="note-meta">
                 {% if note.course %}Course: {{ note.course }}{% endif %}
                 {% if note.subject %} | Subject: {{ note.subject }}{% endif %}
                 {% if note.session %} | Session: {{ note.session }}{% endif %}
                 {% if note.year %} | Year: {{ note.year }}{% endif %}
             </div>
+
+            {% if note.type == 'image' and note.file_name %}
+                <img src="{{ url_for('static', filename='uploads/' ~ note.file_name) }}" alt="{{ note.name }}">
+            {% endif %}
         </div>
+
         <div class="note-actions">
-            <button onclick="showPDF('{{ note.pdf_link }}')">View PDF</button>
-            <a href="{{ note.pdf_link }}" target="_blank">Download PDF</a>
+            {% if note.type == 'pdf' and (note.pdf_link or note.file_name) %}
+                {% set link = note.pdf_link if note.pdf_link else url_for('static', filename='uploads/' ~ note.file_name) %}
+                <button onclick="showPDF('{{ link }}')">View PDF</button>
+            {% endif %}
+
+            {% if note.file_name %}
+                <a href="{{ url_for('static', filename='uploads/' ~ note.file_name) }}" target="_blank">Download</a>
+            {% elif note.pdf_link %}
+                <a href="{{ note.pdf_link }}" target="_blank">Download</a>
+            {% endif %}
         </div>
     </li>
     {% endfor %}
 </ul>
 
-<!-- Hidden iframe to show PDF -->
+<!-- PDF Preview iframe -->
 <div id="pdfContainer">
     <iframe id="pdfFrame" src="" width="100%" height="600px"></iframe>
 </div>
 
 <script>
 function showPDF(link) {
-    // Extract Google Drive FILE_ID if needed
-    let fileId = link.match(/[-\w]{25,}/); 
+    // If Google Drive link, extract FILE_ID
+    let fileId = link.match(/[-\w]{25,}/);
     if(fileId) {
-        document.getElementById("pdfFrame").src = `https://drive.google.com/file/d/${fileId}/preview`;
-        document.getElementById("pdfContainer").style.display = "block";
-        document.getElementById("pdfContainer").scrollIntoView({behavior: "smooth"});
-    } else {
-        alert("Invalid PDF link");
+        link = `https://drive.google.com/file/d/${fileId}/preview`;
     }
+    document.getElementById("pdfFrame").src = link;
+    document.getElementById("pdfContainer").style.display = "block";
+    document.getElementById("pdfContainer").scrollIntoView({behavior: "smooth"});
 }
 </script>
 {% endblock %}
