@@ -928,3 +928,12 @@ def sitemap():
 @routes.route('/googlef76d8f642f530023.html')
 def google_verify():
     return send_from_directory('.', 'googlef76d8f642f530023.html')
+
+
+@routes.route("/cheatsheet")
+def cheatsheet():
+    # Fetch all notes you want to show in Cheat Sheet
+    # You can filter by type or category if needed
+    notes = Note.query.filter_by(note_type="cheatsheet").order_by(Note.created_at.desc()).all()
+    
+    return render_template("cheatsheets.html", notes=notes)

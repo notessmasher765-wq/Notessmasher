@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    body {
+        background-color: #f0eef6;
+        color: #333;
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+    }
+    h1 {
+        color: #6a5acd;
+        border-bottom: 2px solid #b5a9df;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+    }
+    p {
+        color: #584a72;
+        line-height: 1.6;
+    }
+    ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    li {
+        background-color: #e6e6fa;
+        margin-bottom: 15px;
+        padding: 15px;
+        border-radius: 8px;
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        font-size: 1.1em;
+        color: #3a2d52;
+        flex-wrap: wrap;
+    }
+    .note-info {
+        flex: 1 1 70%;
+    }
+    .note-actions {
+        display: flex;
+        gap: 10px;
+        flex: 1 1 25%;
+        justify-content: flex-end;
+    }
+    .note-meta {
+        font-size: 0.9em;
+        color: #6b5f8c;
+        margin-top: 5px;
+    }
+    a, button {
+        color: #7957d5;
+        text-decoration: none;
+        font-weight: bold;
+        padding: 5px 10px;
+        border: 1px solid #7957d5;
+        border-radius: 5px;
+        transition: background-color 0.3s, color 0.3s;
+        cursor: pointer;
+        background: none;
+    }
+    a:hover, button:hover {
+        background-color: #7957d5;
+        color: white;
+        border-color: #5e43a8;
+    }
+    #pdfContainer {
+        margin-top: 20px;
+        display: none;
+    }
+</style>
+
+<h1>Cheat Sheet</h1>
+<p>Click a note to view or download:</p>
+
+<ul>
+    {% for note in notes %}
+    <li>
+        <div class="note-info">
+            <strong>{{ note.title }}</strong>
+            <div class="note-meta">
+                {% if note.course %}Course: {{ note.course }}{% endif %}
+                {% if note.subject %} | Subject: {{ note.subject }}{% endif %}
+                {% if note.session %} | Session: {{ note.session }}{% endif %}
+                {% if note.year %} | Year: {{ note.year }}{% endif %}
+            </div>
+        </div>
+        <div class="note-actions">
+            <button onclick="showPDF('{{ note.pdf_link }}')">View PDF</button>
+            <a href="{{ note.pdf_link }}" target="_blank">Download PDF</a>
+        </div>
+    </li>
+    {% endfor %}
+</ul>
+
+<!-- Hidden iframe to show PDF -->
+<div id="pdfContainer">
+    <iframe id="pdfFrame" src="" width="100%" height="600px"></iframe>
+</div>
+
+<script>
+function showPDF(link) {
+    // Extract Google Drive FILE_ID if needed
+    let fileId = link.match(/[-\w]{25,}/); 
+    if(fileId) {
+        document.getElementById("pdfFrame").src = `https://drive.google.com/file/d/${fileId}/preview`;
+        document.getElementById("pdfContainer").style.display = "block";
+        document.getElementById("pdfContainer").scrollIntoView({behavior: "smooth"});
+    } else {
+        alert("Invalid PDF link");
+    }
+}
+</script>
+{% endblock %}
