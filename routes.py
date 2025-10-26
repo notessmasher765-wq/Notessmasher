@@ -10,7 +10,6 @@ from flask import (
 from flask_login import  login_required , login_user, logout_user, current_user
 from werkzeug.utils import secure_filename
 
-from models import db
 from flask_dance.contrib.google import google
 from models import User , Note ,AKTU , StickyNote , StudyTip , Explanation , SavedNote , ViewedNote , FeatureSuggestion , Feedback , Question , Answer 
 
@@ -23,7 +22,7 @@ from PyPDF2 import PdfReader
 
 
 # ✨ IMPORT CLEANED MODELS
-from models import db, User, Note, SavedNote, ViewedNote, StudyTip, StickyNote, Explanation, FeatureSuggestion, Feedback
+from models import  User, Note, SavedNote, ViewedNote, StudyTip, StickyNote, Explanation, FeatureSuggestion, Feedback
 
 routes = Blueprint("routes", __name__)
 UPLOAD_FOLDER = "uploaded_notes"
