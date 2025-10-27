@@ -1,8 +1,7 @@
-from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from datetime import datetime
+from extensions import db
 
-db = SQLAlchemy()
 
 
 class User(db.Model, UserMixin):
@@ -30,8 +29,6 @@ class User(db.Model, UserMixin):
 
 class Note(db.Model):
     __tablename__ = 'note'
-    __table_args__ = {'extend_existing': True}
-
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False)
     title = db.Column(db.String(150), nullable=False)
@@ -61,7 +58,7 @@ class Note(db.Model):
 
 
 class SavedNote(db.Model):
-    __table_args__ = {'extend_existing': True}
+    __tablename__ = 'saved_note'
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False)
     note_id = db.Column(db.Integer, db.ForeignKey('note.id', ondelete='CASCADE'), nullable=False)
@@ -71,53 +68,53 @@ class SavedNote(db.Model):
 
 
 class ViewedNote(db.Model):
-    __table_args__ = {'extend_existing': True}
+    __tablename__ = 'viewed_note'
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False)
     note_id = db.Column(db.Integer, db.ForeignKey('note.id', ondelete='CASCADE'), nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
     def __repr__(self):
-        return f"<ViewedNote User {self.user_id} viewed Note {self.note_id} at {self.timestamp}>"
+        return f"<ViewedNote User {self.user_id} viewed Note {self.note_id}>"
 
 
 class StudyTip(db.Model):
-    __table_args__ = {'extend_existing': True}
+    __tablename__ = 'study_tip'
     id = db.Column(db.Integer, primary_key=True)
     tip_text = db.Column(db.Text, nullable=False)
     submitted_by = db.Column(db.String(100), nullable=True)
 
     def __repr__(self):
-        return f"<StudyTip #{self.id} by {self.submitted_by or 'Anonymous'}>"
+        return f"<StudyTip #{self.id}>"
 
 
 class StickyNote(db.Model):
-    __table_args__ = {'extend_existing': True}
+    __tablename__ = 'sticky_note'
     id = db.Column(db.Integer, primary_key=True)
     content = db.Column(db.Text, nullable=False)
     x = db.Column(db.Integer, default=100)
     y = db.Column(db.Integer, default=100)
 
     def __repr__(self):
-        return f"<StickyNote #{self.id} at ({self.x}, {self.y})>"
+        return f"<StickyNote #{self.id}>"
 
 
 class Explanation(db.Model):
-    __table_args__ = {'extend_existing': True}
+    __tablename__ = 'explanation'
     id = db.Column(db.Integer, primary_key=True)
     topic = db.Column(db.String(200), nullable=False)
     explanation = db.Column(db.Text, nullable=False)
     image_filename = db.Column(db.String(200))
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='SET NULL'), nullable=True)
-    note_id = db.Column(db.Integer, db.ForeignKey('note.id', ondelete='CASCADE'), nullable=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='SET NULL'))
+    note_id = db.Column(db.Integer, db.ForeignKey('note.id', ondelete='CASCADE'))
 
     def __repr__(self):
         return f"<Explanation {self.topic}>"
 
 
 class FeatureSuggestion(db.Model):
-    __table_args__ = {'extend_existing': True}
+    __tablename__ = 'feature_suggestion'
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(200), nullable=False)
     description = db.Column(db.Text, nullable=False)
@@ -130,11 +127,11 @@ class FeatureSuggestion(db.Model):
     submitted_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     def __repr__(self):
-        return f"<FeatureSuggestion {self.title} ({self.status})>"
+        return f"<FeatureSuggestion {self.title}>"
 
 
 class Feedback(db.Model):
-    __table_args__ = {'extend_existing': True}
+    __tablename__ = 'feedback'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100))
     email = db.Column(db.String(120))
@@ -144,12 +141,11 @@ class Feedback(db.Model):
     submitted_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     def __repr__(self):
-        return f"<Feedback {self.feedback_type} - {self.name or 'Anonymous'}>"
+        return f"<Feedback {self.feedback_type}>"
 
 
 class AKTU(db.Model):
     __tablename__ = 'aktu'
-    __table_args__ = {'extend_existing': True}
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(200), nullable=False)
     subject = db.Column(db.String(100), nullable=False)
@@ -162,11 +158,12 @@ class AKTU(db.Model):
 
 
 class Question(db.Model):
+    __tablename__ = 'question'
     id = db.Column(db.Integer, primary_key=True)
     topic = db.Column(db.String(200), nullable=False)
     description = db.Column(db.Text)
     image_filename = db.Column(db.String(200))
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='SET NULL'), nullable=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='SET NULL'))
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
     answers = db.relationship('Answer', backref='question', lazy=True, cascade="all, delete-orphan")
@@ -176,11 +173,12 @@ class Question(db.Model):
 
 
 class Answer(db.Model):
+    __tablename__ = 'answer'
     id = db.Column(db.Integer, primary_key=True)
     answer_text = db.Column(db.Text, nullable=False)
-    question_id = db.Column(db.Integer, db.ForeignKey('question.id', ondelete='CASCADE'), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='SET NULL'), nullable=True)
+    question_id = db.Column(db.Integer, db.ForeignKey('question.id', ondelete='CASCADE'))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='SET NULL'))
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
     def __repr__(self):
-        return f"<Answer {self.id} for Question {self.question_id}>"
+        return f"<Answer {self.id}>"
