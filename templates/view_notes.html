@@ -194,8 +194,9 @@
                     <div class="share-dropdown">
                         <a href="javascript:void(0)">📤 Share</a>
                         <div class="share-dropdown-content">
-                            <a href="https://wa.me/?text=Check this note: {{ url_for('routes.view_note', note_id=note.id, _external=True) }}"
+                            <a href="https://wa.me/?text=Check this note: {{ url_for('routes.public_note_view', share_id=note.share_id, _external=True) }}"
                                 target="_blank">🟢WhatsApp</a>
+
                             <a
                                 href="mailto:?subject=Check this note&body=Here is the link: {{ url_for('routes.view_note', note_id=note.id, _external=True) }}">Gmail</a>
                             <a href="https://x.com/intent/post?text={{ url_for('routes.view_note', note_id=note.id, _external=True) }}"

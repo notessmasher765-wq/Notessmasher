@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ note.title }}</title>
+</head>
+<body>
+    <h2>{{ note.title }}</h2>
+    <p><strong>Subject:</strong> {{ note.subject }}</p>
+
+    {% if note.file_path %}
+        <iframe src="{{ url_for('static', filename=note.file_path.split('static/')[-1]) }}"
+                width="100%" height="600px"></iframe>
+    {% elif note.typed_content %}
+        <p>{{ note.typed_content }}</p>
+    {% else %}
+        <p>No content available.</p>
+    {% endif %}
+</body>
+</html>

@@ -462,6 +462,18 @@ def view_notes():
     return render_template("view_notes.html", notes=notes)
 
 
+# ✅ Public Note Viewer
+@routes.route("/shared/<string:share_id>")
+def public_note_view(share_id):
+    note = Note.query.filter_by(share_id=share_id).first()
+
+    if not note:
+        flash("This note is unavailable or deleted!", "danger")
+        return redirect(url_for('routes.view_notes'))
+
+    return render_template("public_note.html", note=note)
+
+
 
 @routes.route("/delete/<int:note_id>", methods=["POST"])
 def delete_note(note_id):
