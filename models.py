@@ -39,7 +39,6 @@ class Note(db.Model):
     typed_content = db.Column(db.Text, nullable=True)
     year = db.Column(db.String(20), nullable=True)
     share_id = db.Column(db.String(100), unique=True, nullable=True)
-
     file_name = db.Column(db.String(200), nullable=False)
     file_path = db.Column(db.String(300), nullable=False)
     file_url = db.Column(db.String(500), nullable=False)
