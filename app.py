@@ -1,16 +1,18 @@
 import os
 from flask import Flask
-from extensions import db, bcrypt, login_manager, migrate
+from extensions import db, bcrypt, login_manager
 from models import User
 from dotenv import load_dotenv
 from routes import routes
 from flask_dance.contrib.google import make_google_blueprint
+from flask_migrate import Migrate
 
 # Load .env in development
 if os.getenv("FLASK_ENV") == "development":
     load_dotenv()
 
 app = Flask(__name__)
+migrate = Migrate(app, db)
 
 # Secret key
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev-secret')
