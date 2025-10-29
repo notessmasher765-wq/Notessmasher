@@ -7,7 +7,7 @@ services:
     pythonVersion: "3.11"
     buildCommand: bash render-build.sh
     startCommand: |
-      flask db upgrade && gunicorn app:app
+      flask db upgrade && gunicorn app:app --bind 0.0.0.0:$PORT
     envVars:
       - key: FLASK_ENV
         value: production

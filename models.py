@@ -43,6 +43,8 @@ class Note(db.Model):
     file_url = db.Column(db.String(500), nullable=False)
     thumbnail_url = db.Column(db.String(500), nullable=True)
     pages = db.Column(db.Integer, nullable=True)
+    share_id = db.Column(db.String(100), unique=True, nullable=True)
+
 
     is_public = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
