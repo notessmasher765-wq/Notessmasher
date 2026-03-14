@@ -5,7 +5,7 @@ pause
 
 cd "C:\Study Resources"
 
-git add . && git commit -m "Your descriptive message about changes" && git push origin main
+git add . && git commit -m "Your descriptive message about changes psycosg 2 " && git push origin main
 
 
 flask db migrate -m "Add share_id to notes"
