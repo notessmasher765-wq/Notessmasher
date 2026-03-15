@@ -62,6 +62,9 @@ def load_user(user_id):
 # ===== Register routes blueprint =====
 app.register_blueprint(routes)
 
+with app.app_context():
+    db.create_all()
+
 # ===== Run app =====
 if __name__ == "__main__":
     app.run(debug=True)
