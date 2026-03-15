@@ -10,3 +10,7 @@ git add . && git commit -m "Your descriptive message about changes psycosg 2 " &
 
 flask db migrate -m "Add share_id to notes"
 flask db upgrade
+
+git add requirements.txt
+git commit -m "fix postgres driver"
+git push origin main

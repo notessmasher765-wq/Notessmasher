@@ -12,8 +12,7 @@ if os.getenv("FLASK_ENV") == "development":
     load_dotenv()
 
 app = Flask(__name__)
-migrate = Migrate(app, db)
-
+migrate = Migrate()
 # Secret key
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev-secret')
 
