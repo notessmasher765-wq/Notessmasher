@@ -5,10 +5,10 @@ pause
 
 cd "C:\Study Resources"
 
-git add . && git commit -m "Your descriptive message about changes psycosg 2 " && git push origin main
+git add . && git commit -m ""FIXING LOGIN AND REGISTER " && git push origin main
 
 
-flask db migrate -m "Add share_id to notes"
+flask db migrate -m "FIXING LOGIN AND REGISTER"
 flask db upgrade
 
 git add requirements.txt

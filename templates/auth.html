@@ -121,6 +121,7 @@
       border-radius: 10px;
       margin-bottom: 12px;
       outline: none;
+      box-sizing: border-box;
     }
 
     input:focus,
@@ -165,6 +166,21 @@
       align-items: center;
       gap: 8px;
       margin: 10px 0;
+      flex-wrap: wrap;
+    }
+
+    .checkbox-group input[type="checkbox"] {
+      width: auto;
+      margin: 0;
+      padding: 0;
+      flex: 0 0 auto;
+    }
+
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0;
     }
 
     .checkbox-group label {
@@ -177,6 +193,13 @@
     .checkbox-group a {
       font-weight: bold;
       color: #6a1b9a;
+    }
+
+    .password-help {
+      color: #6a1b9a;
+      display: block;
+      font-size: 12px;
+      margin: -6px 0 12px;
     }
 
     .flash {
@@ -196,6 +219,16 @@
     .flash.danger {
       background-color: #ffcdd2;
       color: #b71c1c;
+    }
+
+    .flash.warning {
+      background-color: #fff3cd;
+      color: #856404;
+    }
+
+    .flash.info {
+      background-color: #d1ecf1;
+      color: #0c5460;
     }
 
     @media (max-width: 768px) {
@@ -251,8 +284,8 @@
     // Toggle college/school fields
     function toggleFields() {
       const type = document.getElementById('user_type').value;
-      document.getElementById('college-fields').style.display = type === 'college' ? 'block' : 'none';
-      document.getElementById('school-fields').style.display = type === 'school' ? 'block' : 'none';
+      document.getElementById('college-fields').style.display = type === 'College' ? 'block' : 'none';
+      document.getElementById('school-fields').style.display = type === 'School' ? 'block' : 'none';
     }
 
     // Toggle show/hide password
@@ -267,11 +300,18 @@
     function validateForm() {
       const pwd = document.getElementById("password").value;
       const cpwd = document.getElementById("confirm_password").value;
+      const strongPassword = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
 
       if (pwd !== cpwd) {
         alert("Passwords do not match!");
         return false;
       }
+
+      if (!strongPassword.test(pwd)) {
+        alert("Password must be at least 8 characters and include a letter, number, and special symbol.");
+        return false;
+      }
+
       return true;
     }
 
@@ -295,7 +335,7 @@
     <!-- Illustration -->
     <div class="illustration">
       <img src="{{ url_for('static', filename='login image/image.png') }}" alt="StudySpark Login Illustration">
-      <h2>Stay Chill ✌ Login or Register</h2>
+      <h2>Login or Register</h2>
     </div>
 
     <!-- Forms -->
@@ -310,10 +350,10 @@
         <h2>Login</h2>
         <form method="POST" action="{{ url_for('routes.auth') }}">
           <input type="hidden" name="action" value="login">
-          <input type="text" name="username" placeholder="Email or Phone Number" required>
+          <input type="text" name="username" placeholder="Email, phone, or username" required>
           <input type="password" name="password" placeholder="Password" required>
           <div class="checkbox-group">
-            <label><input type="checkbox" name="remember"> Remember me</label>
+            <label class="checkbox-label"><input type="checkbox" name="remember"> Remember me</label>
             <a href="#">Forgot Password?</a>
           </div>
           <button type="submit" class="form-btn">Login</button>
@@ -339,8 +379,8 @@
           <label for="user_type">You are a:</label>
           <select name="user_type" id="user_type" onchange="toggleFields()" required>
             <option value="">Select...</option>
-            <option value="college">College Student</option>
-            <option value="school">School Student</option>
+            <option value="College">College Student</option>
+            <option value="School">School Student</option>
           </select>
 
           <div id="college-fields" style="display:none;">
@@ -358,8 +398,8 @@
           </div>
 
           <div id="school-fields" style="display:none;">
-            <label for="class">Class:</label>
-            <select name="class">
+            <label for="school_class">Class:</label>
+            <select name="school_class" id="school_class">
               <option value="">Select...</option>
               <option value="6">6th</option>
               <option value="7">7th</option>
@@ -375,20 +415,22 @@
           <input type="text" name="username" required>
 
           <label for="password">Password:</label>
-          <input type="password" name="password" id="password" required pattern=".{8,}"
-            title="Minimum 8 characters">
+          <input type="password" name="password" id="password" required
+            pattern="^(?=.*[A-Za-z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).{8,}$"
+            title="At least 8 characters with a letter, number, and special symbol">
+          <small class="password-help">Use at least 8 characters with a letter, number, and special symbol.</small>
 
           <label for="confirm_password">Confirm Password:</label>
           <input type="password" name="confirm_password" id="confirm_password" required>
 
           <div class="checkbox-group">
             <input type="checkbox" onclick="togglePassword()" id="showPassword">
-            <label for="showPassword">Show Password</label>
+            <label class="checkbox-label" for="showPassword">Show Password</label>
           </div>
 
           <div class="checkbox-group">
-            <input type="checkbox" id="terms" required>
-            <label for="terms">I agree to the <a href="{{ url_for('routes.terms') }}">Terms & Conditions</a></label>
+            <input type="checkbox" id="terms" name="terms" required>
+            <label class="checkbox-label" for="terms">I agree to the <a href="{{ url_for('routes.terms') }}">Terms & Conditions</a></label>
           </div>
 
           <button type="submit" class="form-btn">Register</button>

@@ -1,5 +1,6 @@
 import os
 import random
+import re
 import uuid , platform
 from datetime import datetime
 import docx
@@ -28,6 +29,7 @@ routes = Blueprint("routes", __name__)
 UPLOAD_FOLDER = "uploaded_notes"
 UPLOAD_FOLDER_NOTES = os.path.join("static", "uploads", "notes")
 UPLOAD_FOLDER_THUMBNAILS = os.path.join("static", "uploads", "thumbnails")
+PASSWORD_PATTERN = re.compile(r"^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$")
 
 # ------------------ BASIC ROUTES ------------------
 
@@ -48,9 +50,14 @@ def auth():
         action = request.form.get("action")
 
         if action == "login":
-            identifier = request.form.get("username")
-            password = request.form.get("password")
-            user = User.query.filter((User.email == identifier) | (User.phone == identifier)).first()
+            identifier = request.form.get("username", "").strip()
+            identifier_email = identifier.lower()
+            password = request.form.get("password", "")
+            user = User.query.filter(
+                (User.email == identifier_email) |
+                (User.phone == identifier) |
+                (User.username == identifier)
+            ).first()
             
             if user and user.password and bcrypt.check_password_hash(user.password, password):
                 remember = True if request.form.get("remember") else False
@@ -58,22 +65,48 @@ def auth():
                 flash("Login successful!", "success")
                 return redirect(url_for("routes.home"))
             else:
-                flash("Invalid email/phone or password", "danger")
+                flash("Invalid email, phone, username, or password", "danger")
 
         elif action == "register":
-            name = request.form.get("name")
-            email = request.form.get("email")
-            username = request.form.get("username")
-            phone = request.form.get("phone")
-            user_type = request.form.get("user_type")
+            name = request.form.get("name", "").strip()
+            email = request.form.get("email", "").strip().lower()
+            username = request.form.get("username", "").strip()
+            phone = request.form.get("phone", "").strip()
+            user_type = request.form.get("user_type", "")
             course = request.form.get("course") if user_type == "College" else None
             school_class = request.form.get("school_class") if user_type == "School" else None
-            password = request.form.get("password")
-            hashed_password = bcrypt.generate_password_hash(password).decode("utf-8")
+            password = request.form.get("password", "")
+            confirm_password = request.form.get("confirm_password", "")
 
-            if User.query.filter((User.email == email) | (User.phone == phone)).first():
-                flash("Email or Phone already registered. Try another!", "danger")
+            if not all([name, email, username, phone, user_type, password, confirm_password]):
+                flash("Please fill in all required registration fields.", "danger")
                 return redirect(url_for("routes.auth"))
+
+            if user_type not in ["College", "School"]:
+                flash("Please select a valid user type.", "danger")
+                return redirect(url_for("routes.auth"))
+
+            if not re.fullmatch(r"\d{10}", phone):
+                flash("Phone number must be exactly 10 digits.", "danger")
+                return redirect(url_for("routes.auth"))
+
+            if not request.form.get("terms"):
+                flash("Please accept the Terms & Conditions.", "danger")
+                return redirect(url_for("routes.auth"))
+
+            if password != confirm_password:
+                flash("Passwords do not match.", "danger")
+                return redirect(url_for("routes.auth"))
+
+            if not PASSWORD_PATTERN.match(password):
+                flash("Password must be at least 8 characters and include a letter, number, and special symbol.", "danger")
+                return redirect(url_for("routes.auth"))
+
+            if User.query.filter((User.email == email) | (User.phone == phone) | (User.username == username)).first():
+                flash("Email, phone, or username already registered. Try another!", "danger")
+                return redirect(url_for("routes.auth"))
+
+            hashed_password = bcrypt.generate_password_hash(password).decode("utf-8")
 
             new_user = User(
                 name=name,
