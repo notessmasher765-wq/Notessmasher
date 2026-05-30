@@ -1,3 +1,4 @@
+import uuid
 from flask_login import UserMixin
 from datetime import datetime
 from extensions import db

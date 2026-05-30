@@ -140,7 +140,7 @@
       {% if recently_viewed %}
         {% for note in recently_viewed %}
         <div class="note-item">
-          • <a href="{{ url_for('routes.view_note_page', note_id=note.id) }}" style="color:#6a1b9a; text-decoration:none;">
+          • <a href="{{ url_for('routes.view_note', note_id=note.id) }}" style="color:#6a1b9a; text-decoration:none;">
             {{ note.title }}
           </a> – {{ note.subject }}
         </div>
@@ -196,7 +196,7 @@
         {% for note in public_notes %}
         <div class="note-card">
           {{ note.title }} – {{ note.subject }}
-          <form action="{{ url_for('save_note', note_id=note.id) }}" method="POST" style="display:inline;">
+          <form action="{{ url_for('routes.save_note', note_id=note.id) }}" method="POST" style="display:inline;">
             <button type="submit">⭐ Save</button>
           </form>
         </div>

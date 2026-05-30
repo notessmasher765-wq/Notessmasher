@@ -84,7 +84,7 @@ img { max-width: 200px; border-radius: 5px; margin-top: 10px; }
     {% for note in notes %}
     <li>
         <div class="note-info">
-            <strong>{{ note.name }}</strong>
+            <strong>{{ note.title }}</strong>
             <div class="note-meta">
                 {% if note.course %}Course: {{ note.course }}{% endif %}
                 {% if note.subject %} | Subject: {{ note.subject }}{% endif %}
@@ -92,21 +92,19 @@ img { max-width: 200px; border-radius: 5px; margin-top: 10px; }
                 {% if note.year %} | Year: {{ note.year }}{% endif %}
             </div>
 
-            {% if note.type == 'image' and note.file_name %}
-                <img src="{{ url_for('static', filename='uploads/' ~ note.file_name) }}" alt="{{ note.name }}">
+            {% if note.file_name and note.file_name.lower().endswith(('jpg', 'jpeg', 'png')) %}
+                <img src="{{ note.file_url }}" alt="{{ note.title }}">
             {% endif %}
         </div>
 
         <div class="note-actions">
-            {% if note.type == 'pdf' and (note.pdf_link or note.file_name) %}
-                {% set link = note.pdf_link if note.pdf_link else url_for('static', filename='uploads/' ~ note.file_name) %}
+            {% if note.file_url and (note.file_url.startswith('http') or note.file_name.lower().endswith('pdf')) %}
+                {% set link = note.file_url %}
                 <button onclick="showPDF('{{ link }}')">View PDF</button>
             {% endif %}
 
             {% if note.file_name %}
-                <a href="{{ url_for('static', filename='uploads/' ~ note.file_name) }}" target="_blank">Download</a>
-            {% elif note.pdf_link %}
-                <a href="{{ note.pdf_link }}" target="_blank">Download</a>
+                <a href="{{ note.file_url }}" target="_blank">Download</a>
             {% endif %}
         </div>
     </li>

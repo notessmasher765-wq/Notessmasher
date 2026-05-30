@@ -167,10 +167,11 @@ def save_note(note_id):
 @routes.route("/note/<int:note_id>")
 def view_note(note_id):
     note = Note.query.get_or_404(note_id)
-    view = ViewedNote(user_id=current_user.id, note_id=note_id)
-    db.session.add(view)
-    db.session.commit()
-    return render_template("view_notes.html", note=note)
+    if current_user.is_authenticated:
+        view = ViewedNote(user_id=current_user.id, note_id=note_id)
+        db.session.add(view)
+        db.session.commit()
+    return render_template("view_note.html", note=note)
 
 # ------------------ UPLOAD ------------------
 
@@ -384,19 +385,33 @@ def update_position(note_id):
 @routes.route("/explain", methods=["GET", "POST"])
 def explain():
     if request.method == "POST":
-        topic = request.form.get("topic")
-        explanation = request.form.get("explanation")
+        topic = request.form.get("topic", "").strip()
+        description = request.form.get("description", "").strip()
         user_id = current_user.id if current_user.is_authenticated else None
+        image = request.files.get("image")
+        image_filename = None
 
-        if topic and explanation:
-            new_expl = Explanation(topic=topic, explanation=explanation, user_id=user_id)
-            db.session.add(new_expl)
+        if image and image.filename:
+            os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+            image_filename = f"{uuid.uuid4()}_{secure_filename(image.filename)}"
+            image.save(os.path.join(UPLOAD_FOLDER, image_filename))
+
+        if topic:
+            new_question = Question(
+                topic=topic,
+                description=description or None,
+                image_filename=image_filename,
+                user_id=user_id
+            )
+            db.session.add(new_question)
             db.session.commit()
-            flash("Explanation posted!", "success")
+            flash("Question posted!", "success")
             return redirect(url_for("routes.explain"))
 
-    explanations = Explanation.query.order_by(Explanation.timestamp.desc()).all()
-    return render_template("explain.html", explanations=explanations)
+        flash("Topic cannot be empty.", "warning")
+
+    questions = Question.query.order_by(Question.timestamp.desc()).all()
+    return render_template("explain.html", questions=questions)
 
 
 # ------------------ MY NOTES ------------------
@@ -669,14 +684,6 @@ def google_login():
 
 
 
-@routes.route("/note/<int:note_id>")
-def view_note_page(note_id):
-    note = Note.query.get_or_404(note_id)
-    return render_template("view_note.html", note=note)
-
- #-----------------------------------------------------------------------------------------------------------------------------
-
-
 @routes.route('/search_notes')
 def search_notes():
     query = request.args.get('q', '').lower()
@@ -755,12 +762,12 @@ def view_question(question_id):
     if question_id is None:
         # No question selected → show a blank form for asking a new question
         if request.method == "POST":
-            title = request.form.get("title", "").strip()
-            content = request.form.get("content", "").strip()
-            if title and content:
+            topic = request.form.get("topic", "").strip()
+            description = request.form.get("description", "").strip()
+            if topic and description:
                 new_question = Question(
-                    title=title,
-                    content=content,
+                    topic=topic,
+                    description=description,
                     user_id=current_user.id if current_user.is_authenticated else None
                 )
                 db.session.add(new_question)
@@ -768,7 +775,7 @@ def view_question(question_id):
                 flash("Question posted successfully! 💡", "success")
                 return redirect(url_for("routes.view_question", question_id=new_question.id))
             else:
-                flash("Title and content cannot be empty.", "warning")
+                flash("Topic and description cannot be empty.", "warning")
         
         # Render the same template but with empty question
         return render_template("question.html", question=None, answers=[])
@@ -793,6 +800,13 @@ def view_question(question_id):
             flash("Answer cannot be empty.", "warning")
 
     return render_template("question.html", question=question, answers=answers)
+
+ #-----------------------------------------------------------------------------------------------------------------------------
+
+
+@routes.route("/uploaded_images/<path:filename>")
+def uploaded_image(filename):
+    return send_from_directory(UPLOAD_FOLDER, filename)
 
  #-----------------------------------------------------------------------------------------------------------------------------
 
@@ -841,7 +855,7 @@ def sitemap():
         aktu_notes = Note.query.filter_by(is_public=True, note_type="aktu_pyq").all()
         for note in aktu_notes:
             pages.append({
-                "loc": url_for("routes.view_note_page", note_id=note.id, _external=True),
+                "loc": url_for("routes.view_note", note_id=note.id, _external=True),
                 "lastmod": (note.updated_at or note.created_at or datetime.utcnow()).strftime("%Y-%m-%d"),
                 "priority": "0.9",
                 "changefreq": "daily"
@@ -854,7 +868,7 @@ def sitemap():
         other_notes = Note.query.filter_by(is_public=True).filter(Note.note_type != "aktu_pyq").all()
         for note in other_notes:
             pages.append({
-                "loc": url_for("routes.view_note_page", note_id=note.id, _external=True),
+                "loc": url_for("routes.view_note", note_id=note.id, _external=True),
                 "lastmod": (note.updated_at or note.created_at or datetime.utcnow()).strftime("%Y-%m-%d"),
                 "priority": "0.7",
                 "changefreq": "daily"
@@ -903,6 +917,10 @@ def allowed_file(filename):
 @routes.route("/cheatsheet", methods=["GET", "POST"])
 def cheatsheet():
     if request.method == "POST":
+        if not current_user.is_authenticated:
+            flash("Please log in to upload cheatsheets.", "danger")
+            return redirect(url_for("routes.auth"))
+
         name = request.form.get("name")
         file = request.files.get("file")
         drive_link = request.form.get("drive_link")
@@ -915,15 +933,18 @@ def cheatsheet():
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             save_path = os.path.join('static/uploads', filename)
+            os.makedirs(os.path.dirname(save_path), exist_ok=True)
             file.save(save_path)
-            file_type = "image" if filename.lower().endswith(('jpg', 'jpeg', 'png')) else "pdf"
+            file_url = url_for('static', filename=f'uploads/{filename}', _external=True)
 
             new_note = Note(
-                name=name,
+                user_id=current_user.id,
+                title=name,
                 file_name=filename,
-                pdf_link=None,
+                file_path=save_path.replace("\\", "/"),
+                file_url=file_url,
+                thumbnail_url=file_url if filename.lower().endswith(('jpg', 'jpeg', 'png')) else None,
                 note_type="cheatsheet",
-                type=file_type,
                 created_at=datetime.utcnow()
             )
             db.session.add(new_note)
@@ -933,12 +954,14 @@ def cheatsheet():
 
         # If Google Drive link is provided
         elif drive_link:
+            filename = secure_filename(name) or f"{uuid.uuid4()}-cheatsheet-link"
             new_note = Note(
-                name=name,
-                file_name=None,
-                pdf_link=drive_link,
+                user_id=current_user.id,
+                title=name,
+                file_name=filename,
+                file_path=drive_link,
+                file_url=drive_link,
                 note_type="cheatsheet",
-                type="pdf",
                 created_at=datetime.utcnow()
             )
             db.session.add(new_note)
