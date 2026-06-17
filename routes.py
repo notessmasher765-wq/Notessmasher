@@ -1,12 +1,13 @@
 import os
 import random
 import re
+import secrets
 import uuid , platform
 from datetime import datetime
 import docx
 from flask import (
     Blueprint, render_template, redirect, url_for, request,
-    flash, send_from_directory, jsonify  , current_app 
+    flash, send_from_directory, jsonify  , current_app, session
 )
 from flask_login import  login_required , login_user, logout_user, current_user
 from werkzeug.utils import secure_filename
@@ -30,6 +31,17 @@ UPLOAD_FOLDER = "uploaded_notes"
 UPLOAD_FOLDER_NOTES = os.path.join("static", "uploads", "notes")
 UPLOAD_FOLDER_THUMBNAILS = os.path.join("static", "uploads", "thumbnails")
 PASSWORD_PATTERN = re.compile(r"^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$")
+
+
+def get_csrf_token():
+    if "csrf_token" not in session:
+        session["csrf_token"] = secrets.token_urlsafe(32)
+    return session["csrf_token"]
+
+
+@routes.context_processor
+def inject_csrf_token():
+    return {"csrf_token": get_csrf_token}
 
 # ------------------ BASIC ROUTES ------------------
 
@@ -200,6 +212,11 @@ def save_note(note_id):
 @routes.route("/note/<int:note_id>")
 def view_note(note_id):
     note = Note.query.get_or_404(note_id)
+    is_owner = current_user.is_authenticated and note.user_id == current_user.id
+    if not note.is_public and not is_owner:
+        flash("This note is private.", "danger")
+        return redirect(url_for("routes.view_notes"))
+
     if current_user.is_authenticated:
         view = ViewedNote(user_id=current_user.id, note_id=note_id)
         db.session.add(view)
@@ -319,6 +336,11 @@ def upload():
 @routes.route("/download/<int:note_id>")
 def download_note(note_id):
     note = Note.query.get_or_404(note_id)
+    is_owner = current_user.is_authenticated and note.user_id == current_user.id
+    if not note.is_public and not is_owner:
+        flash("You can only download public notes or your own notes.", "danger")
+        return redirect(request.referrer or url_for("routes.view_notes"))
+
     if note.file_path:
         file_full_path = note.file_path.lstrip("/")
         abs_path = os.path.join("static", file_full_path.replace("static/", ""))
@@ -450,8 +472,9 @@ def explain():
 # ------------------ MY NOTES ------------------
 
 @routes.route("/my_notes")
+@login_required
 def my_notes():
-    user_id = current_user.id if current_user.is_authenticated else 1
+    user_id = current_user.id
 
     search = request.args.get("search", "")
     subject = request.args.get("subject", "")
@@ -495,7 +518,7 @@ def view_notes():
     note_type = request.args.get("type", "")
     session = request.args.get("session", "")
 
-    query = Note.query
+    query = Note.query.filter_by(is_public=True)
 
     if search:
         query = query.filter(Note.title.ilike(f"%{search}%"))
@@ -507,7 +530,18 @@ def view_notes():
         query = query.filter_by(session=session)
 
     notes = query.order_by(Note.id.desc()).all()
-    return render_template("view_notes.html", notes=notes)
+    public_notes = Note.query.filter_by(is_public=True)
+    subjects = sorted({n.subject for n in public_notes if n.subject})
+    types = sorted({n.note_type for n in public_notes if n.note_type})
+    sessions = sorted({n.session for n in public_notes if n.session})
+
+    return render_template(
+        "view_notes.html",
+        notes=notes,
+        subjects=subjects,
+        types=types,
+        sessions=sessions
+    )
 
 
 # ✅ Public Note Viewer
@@ -524,8 +558,17 @@ def public_note_view(share_id):
 
 
 @routes.route("/delete/<int:note_id>", methods=["POST"])
+@login_required
 def delete_note(note_id):
     note = Note.query.get_or_404(note_id)
+
+    if request.form.get("csrf_token") != session.get("csrf_token"):
+        flash("Invalid delete request. Please try again.", "danger")
+        return redirect(request.referrer or url_for("routes.my_notes"))
+
+    if note.user_id != current_user.id:
+        flash("You can only delete your own notes.", "danger")
+        return redirect(request.referrer or url_for("routes.view_notes"))
     
     # remove file from static folder if it exists
     if note.file_path:
@@ -542,7 +585,7 @@ def delete_note(note_id):
     db.session.commit()
     
     flash("Note deleted successfully!", "success")
-    return redirect(url_for("routes.view_notes"))
+    return redirect(request.referrer or url_for("routes.my_notes"))
 
 
 
